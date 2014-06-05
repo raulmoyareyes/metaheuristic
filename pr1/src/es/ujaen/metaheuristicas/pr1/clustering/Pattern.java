@@ -5,6 +5,7 @@
 package es.ujaen.metaheuristicas.pr1.clustering;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -13,7 +14,7 @@ import java.util.List;
  *
  * @author Raúl Moya Reyes <www.raulmoya.es>
  */
-public class Pattern {
+public class Pattern implements Iterable<Float> {
 
     /* Lista de datos de un patrón */
     private final List<Float> datas;
@@ -26,7 +27,7 @@ public class Pattern {
     }
 
     /**
-     * Métod para añadir un nuevo dato a la lista del patrón.
+     * Método para añadir un nuevo dato a la lista del patrón.
      *
      * @param data Dato a añadir a la lista del patrón.
      * @return True si se añade correctamente.
@@ -36,12 +37,33 @@ public class Pattern {
     }
 
     /**
-     * Métod para comprobar el tamaño de la lista de datos del patrón.
+     * Método para obtener el dato de una posición concreta del patrón.
+     *
+     * @param position Posicion del dato en el listado del patrón.
+     * @return Dato en la posición indicada en el listado del patrón.
+     */
+    public Float get(int position) {
+        return this.datas.get(position);
+    }
+
+    /**
+     * Método para comprobar el tamaño de la lista de datos del patrón.
      *
      * @return Entero con el tamaño de la lista de datos del patrón.
      */
     public int size() {
         return this.datas.size();
+    }
+
+    /**
+     * Método para iterar por el List.
+     *
+     * @return Iterador del List.
+     */
+    @Override
+    public Iterator<Float> iterator() {
+        Iterator<Float> ipatterns = datas.iterator();
+        return ipatterns;
     }
 
 }
