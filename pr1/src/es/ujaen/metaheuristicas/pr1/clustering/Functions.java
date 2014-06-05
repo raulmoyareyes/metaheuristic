@@ -17,9 +17,35 @@ import java.util.Random;
  */
 public class Functions {
 
-    //calcuar coste desde cero
+    /**
+     * 
+     * @param clusters
+     * @param centroids
+     * @return
+     * @deprecated Pendiente de repasar y comentar
+     */
     public static Float objectiveFunction(List<Cluster> clusters, List<Pattern> centroids) {
-        return 2.2f;
+        float cost = 0;
+        float sub = 0;
+        float add = 0;
+
+        /* Recorre los clusters */
+        for (int i = 0; i < clusters.size(); i++) {
+            /* Recorre los patrones de cada cluster */
+            Cluster cluster = clusters.get(i);
+            for (int j = 0; j < cluster.size(); j++) {
+                /* Recorre los datos de cada patrón */
+                Pattern pattern = cluster.get(j);
+                for (int k = 0; k < pattern.size(); k++) {
+                    sub = pattern.get(k) - centroids.get(i).get(k);
+                    add += sub * sub;
+                }
+                cost += add;
+                add = 0;
+            }
+        }
+
+        return cost;
     }
 
     //calcular el coste factorizando sin tener que calcularlo desde cero
@@ -27,18 +53,25 @@ public class Functions {
         return 12.0f;
     }
 
-    //calcular centroides desde cero
+    /**
+     * 
+     * @param clusters
+     * @return 
+     * @deprecated Pendiente de repasar y comentar
+     */
     public static List<Pattern> calculateCentroids(List<Cluster> clusters) {
         /* ArrayList para crear los centroides de todos los clusters */
         List<Pattern> centroids = new ArrayList<>();
+        /* Recorre los clusters */
         for (Cluster c : clusters) {
             Pattern centroid = new Pattern();
-            for (int i = 0; i < c.get(0).size(); i++) {
-                Float avg = 0f;
+            /* Recorre cada patrón sumando cada dimension y realizando la media */
+            for (int i = 0; c.size() > 0 && i < c.get(0).size(); i++) {
+                float avg = 0;
                 for (Pattern p : c) {
                     avg += p.get(i);
                 }
-                centroid.add(avg);
+                centroid.add(avg / c.get(0).size());
             }
             centroids.add(centroid);
         }

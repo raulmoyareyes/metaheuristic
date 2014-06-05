@@ -62,8 +62,18 @@ public class Pattern implements Iterable<Float> {
      */
     @Override
     public Iterator<Float> iterator() {
-        Iterator<Float> ipatterns = datas.iterator();
+        Iterator<Float> ipatterns = this.datas.iterator();
         return ipatterns;
+    }
+
+    /**
+     * Método para transformar el contenido de la clase en un String.
+     *
+     * @return String con el contenido de la clase.
+     */
+    @Override
+    public String toString() {
+        return this.datas.toString();
     }
 
 }

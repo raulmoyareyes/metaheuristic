@@ -68,4 +68,13 @@ public class Cluster implements Iterable<Pattern> {
         return ipatterns;
     }
 
+    /**
+     * Método para transformar el contenido de la clase en un String.
+     *
+     * @return String con el contenido de la clase.
+     */
+    @Override
+    public String toString() {
+        return this.patterns.toString();
+    }
 }
