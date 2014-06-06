@@ -48,6 +48,16 @@ public class Cluster implements Iterable<Pattern> {
     }
 
     /**
+     * Método para eliminar un patrón del cluster.
+     *
+     * @param index Posición del patrón a eliminar en el cluster.
+     * @return Patrón eliminado del cluster.
+     */
+    public Pattern remove(int index) {
+        return this.patterns.remove(index);
+    }
+
+    /**
      * Métod para comprobar el tamaño de la lista de {@link Pattern} del
      * cluster.
      *

@@ -47,6 +47,16 @@ public class Pattern implements Iterable<Float> {
     }
 
     /**
+     * Método para eliminar un dato del patrón.
+     *
+     * @param index Posición del dato a eliminar en el patrón.
+     * @return Dato eliminado del patrón.
+     */
+    public Float remove(int index) {
+        return this.datas.remove(index);
+    }
+
+    /**
      * Método para comprobar el tamaño de la lista de datos del patrón.
      *
      * @return Entero con el tamaño de la lista de datos del patrón.

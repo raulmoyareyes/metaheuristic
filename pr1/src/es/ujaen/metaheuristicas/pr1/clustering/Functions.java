@@ -18,17 +18,21 @@ import java.util.Random;
 public class Functions {
 
     /**
-     * 
-     * @param clusters
-     * @param centroids
-     * @return
-     * @deprecated Pendiente de repasar y comentar
+     * Método para calcular el coste de una solución.
+     *
+     * @param clusters List de {@link Cluster} con los patrones asignados.
+     * @param centroids List de {@link Pattern} representando los centroides de
+     * los clusters.
+     * @return Float con el coste de la solución.
      */
     public static Float objectiveFunction(List<Cluster> clusters, List<Pattern> centroids) {
-        float cost = 0;
-        float sub = 0;
-        float add = 0;
 
+        /* Coste de la solución */
+        float cost = 0;
+        /* Resta de la distancia de cada componente entre el patrón y el centroide */
+        float sub = 0;
+        /* Distancia entre el patrón y el centroide */
+        float add = 0;
         /* Recorre los clusters */
         for (int i = 0; i < clusters.size(); i++) {
             /* Recorre los patrones de cada cluster */
@@ -48,16 +52,50 @@ public class Functions {
         return cost;
     }
 
-    //calcular el coste factorizando sin tener que calcularlo desde cero
-    public static Float factorize() {
-        return 12.0f;
+    /**
+     * Método para calcular la mejora moviendo un patrón.
+     *
+     * @param clusters List de {@link Cluster} con todos los patrones asignados.
+     * @param centroids List de {@link Pattern} que representan los centroides
+     * de los clusters.
+     * @param assigned Posición del cluster en el listado de cluster al que se
+     * va a asignar el patrón indicado.
+     * @param i Posición del cluster en el listado de cluster del que se va a
+     * eliminar el patrón indicado.
+     * @param j Posición del patrón que se va a mover.
+     * @return Float con la mejora que produce el cambio del patrón.
+     */
+    public static Float factorize(List<Cluster> clusters, List<Pattern> centroids,
+            int assigned, int i, int j) {
+
+        /* Patrón que se va a mover */
+        Pattern pattern = clusters.get(i).get(j);
+        /* Centroide del cluster de origen */
+        Pattern centroid = centroids.get(i);
+        /* Centroide del cluster al que se va a asignar el patrón */
+        Pattern centroidAssigned = centroids.get(assigned);
+        /* Cálculo de la distancia a los dos centroides */
+        Float add = 0f;
+        Float addAssigned = 0f;
+        for (int k = 0; k < pattern.size(); k++) {
+            Float sub = pattern.get(k) - centroid.get(k);
+            add += sub * sub;
+            sub = pattern.get(k) - centroidAssigned.get(k);
+            addAssigned += sub * sub;
+        }
+        /* Mejora que se produce al mover el patrón de cluster */
+        Float objective = -1 * ((clusters.get(i).size() * add) / clusters.get(i).size())
+                + ((clusters.get(assigned).size() * addAssigned) / clusters.get(assigned).size());
+
+        return objective;
     }
 
     /**
-     * 
-     * @param clusters
-     * @return 
-     * @deprecated Pendiente de repasar y comentar
+     * Método que calcula los centroides de los clusters.
+     *
+     * @param clusters List de {@link Cluster} con todos los patrones asignados.
+     * @return List de {@link Pattern} que representan los centroides de los
+     * clusters.
      */
     public static List<Pattern> calculateCentroids(List<Cluster> clusters) {
         /* ArrayList para crear los centroides de todos los clusters */
@@ -71,16 +109,11 @@ public class Functions {
                 for (Pattern p : c) {
                     avg += p.get(i);
                 }
-                centroid.add(avg / c.get(0).size());
+                centroid.add(avg / c.size());
             }
             centroids.add(centroid);
         }
         return centroids;
-    }
-
-    //calcular centoides a partir de los anteriores
-    public static void calculateCentroids(int i) {
-
     }
 
     /**
@@ -91,7 +124,7 @@ public class Functions {
      * @param numberClusters Número de clusters que se van a crear.
      * @return List de {@link Cluster} con todos los patrones asignados.
      */
-    public static List<Cluster> setRandom(List<Pattern> patterns, Long seed, int numberClusters) {
+    public static List<Cluster> setRandom(List<Pattern> patterns, Integer seed, int numberClusters) {
         /* Números aleatorios a partir de una semilla */
         Random rand = new Random(seed);
         /* ArrayList para asignar todos los patrones a los clusters */
