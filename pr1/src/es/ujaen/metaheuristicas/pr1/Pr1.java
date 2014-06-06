@@ -1,6 +1,7 @@
 package es.ujaen.metaheuristicas.pr1;
 
 import es.ujaen.metaheuristicas.pr1.algorithms.BL;
+import es.ujaen.metaheuristicas.pr1.algorithms.GRASP;
 import es.ujaen.metaheuristicas.pr1.clustering.Cluster;
 import es.ujaen.metaheuristicas.pr1.clustering.Functions;
 import es.ujaen.metaheuristicas.pr1.clustering.Pattern;
@@ -22,7 +23,7 @@ public class Pr1 {
          * Semillas - 77358477, 73584777, 35847777, 58477773, 84777735
          */
         List<Integer> seeds = new ArrayList(
-                Arrays.asList(new Integer[]{77358477, 73584777, 35847777, 58477773, 84777735})
+                Arrays.asList(new Integer[]{77367799, 73584777, 35847777, 58477773, 84777735})
         );
 
         Scanner in = new Scanner(System.in);
@@ -73,13 +74,16 @@ public class Pr1 {
     private static void run(String fileName, String head, List<Integer> seeds, Integer numberClusters, Integer algorithm) {
         List<Pattern> patterns = Functions.readData(fileName);
         for (Integer seed : seeds) {
-            List<Cluster> clusters = Functions.setRandom(patterns, seed, numberClusters);
-            List<Pattern> centroids = Functions.calculateCentroids(clusters);
-            Float initialCost = Functions.objectiveFunction(clusters, centroids);
+            List<Cluster> clusters = null;
+            List<Pattern> centroids = null;
+            Float initialCost = null;
             float finalCost = 0;
             long time = 0;
             switch (algorithm) {
                 case 1:
+                    clusters = Functions.setRandom(patterns, seed, numberClusters);
+                    centroids = Functions.calculateCentroids(clusters);
+                    initialCost = Functions.objectiveFunction(clusters, centroids);
                     time = System.currentTimeMillis();
                     finalCost = BL.run(clusters, centroids);
                     time = System.currentTimeMillis() - time;
@@ -88,7 +92,12 @@ public class Pr1 {
 //                            Float finalCost = BT.run(clusters, centroids);
                     break;
                 case 3:
-//                            Float finalCost = GRASP.run(clusters, centroids);
+                    centroids = Functions.calculateCentroids(clusters, seed);
+                    clusters = Functions.setGreedy(patterns, numberClusters);
+                    initialCost = Functions.objectiveFunction(clusters, centroids);
+                    time = System.currentTimeMillis();
+                    finalCost = GRASP.run(clusters, centroids);
+                    time = System.currentTimeMillis() - time;
                     break;
             }
 

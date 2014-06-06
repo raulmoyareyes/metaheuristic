@@ -117,6 +117,17 @@ public class Functions {
     }
 
     /**
+     *
+     * @param clusters
+     * @param seed
+     * @return
+     * @deprecated No implementada.
+     */
+    public static List<Pattern> calculateCentroids(List<Cluster> clusters, Integer seed) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    /**
      * Método para asignar los patrones a los clusters de forma aleatoria.
      *
      * @param patterns Todos los patrones para asignarlos a los clusters.
@@ -142,6 +153,17 @@ public class Functions {
         }
 
         return clusters;
+    }
+
+    /**
+     *
+     * @param patterns
+     * @param numberClusters
+     * @return
+     * @deprecated No está implementada
+     */
+    public static List<Cluster> setGreedy(List<Pattern> patterns, int numberClusters) {
+        return new ArrayList();
     }
 
     /**

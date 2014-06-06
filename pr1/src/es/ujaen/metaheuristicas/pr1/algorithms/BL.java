@@ -47,7 +47,7 @@ public class BL {
                             /* Obtiene el valor de mejora de la solución */
                             Float objective = Functions.factorize(clusters, centroids, assigned, i, j);
                             count++;
-                            /* Si es negativo es porque mejora, entonces recalculamos */
+                            /* Si es negativo es porque mejora, entonces recalcula */
                             if (objective < 0) {
                                 improvement = true;
                                 cost += objective;

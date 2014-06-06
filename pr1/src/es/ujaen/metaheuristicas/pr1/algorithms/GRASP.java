@@ -4,7 +4,9 @@
 package es.ujaen.metaheuristicas.pr1.algorithms;
 
 import es.ujaen.metaheuristicas.pr1.clustering.Cluster;
+import es.ujaen.metaheuristicas.pr1.clustering.Functions;
 import es.ujaen.metaheuristicas.pr1.clustering.Pattern;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -21,8 +23,12 @@ public class GRASP {
      * @param centroids List de {@link Pattern} representando los centroides de
      * los clusters.
      * @return Float con el coste de la solución.
+     * @deprecated No ha sido implementado.
      */
     public static float run(List<Cluster> clusters, List<Pattern> centroids) {
+        
+        List<Pattern> restrictedList = new ArrayList();
+        
         return 0f;
     }
 }
