@@ -18,12 +18,24 @@ public class BL {
     /**
      * Método para lanzar el algorimo de búsqueda local.
      *
-     * @param clusters List de {@link Cluster} con los patrones asignados.
-     * @param centroids List de {@link Pattern} representando los centroides de
-     * los clusters.
+     * @param fileName
+     * @param seed
+     * @param numberClusters
      * @return Float con el coste de la solución.
      */
-    public static float run(List<Cluster> clusters, List<Pattern> centroids) {
+    public static float run(String fileName, Integer seed, Integer numberClusters) {
+
+        /* Conjunto de todos los patrones */
+        List<Pattern> patterns = Functions.readData(fileName);
+        
+        /* Inicio de la cuenta del tiempo de ejecución */
+        Long time = System.currentTimeMillis();
+        /* Asignación de los patrones a cada cluster */
+        List<Cluster> clusters = Functions.setRandom(patterns, seed, numberClusters);
+        /* Cálculo del centroide de cada cluster */
+        List<Pattern> centroids = Functions.calculateCentroids(clusters);
+        /* Coste de la solución inicial */
+        Float initialCost = Functions.objectiveFunction(clusters, centroids);
 
         /* Itera si hay mejora */
         boolean improvement = true;
@@ -64,6 +76,12 @@ public class BL {
                 }
             }
         }
+
+        /* Fin de la cuenta del tiempo de ejecución */
+        time = System.currentTimeMillis() - time;
+        /* Imprimir contenido en consola */
+        Functions.print(fileName, patterns, clusters, centroids, seed,
+                initialCost, cost, time);
 
         return cost;
     }

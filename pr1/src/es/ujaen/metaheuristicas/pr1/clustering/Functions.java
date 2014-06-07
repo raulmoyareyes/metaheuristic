@@ -124,7 +124,20 @@ public class Functions {
      * @deprecated No implementada.
      */
     public static List<Pattern> calculateCentroids(List<Cluster> clusters, Integer seed) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        /*
+        Solucion ={}
+        repetir mientras(no se haya construido){
+            crear lista restringida
+            s<- seleccion aleatoria de un elemento de la lista restringida
+            Solucion <- Solucion+s
+        devolver S
+        
+        alpha = 0.3 umbral
+         */
+
+        List<Pattern> restrictedList = new ArrayList();
+
+        return new ArrayList<>();
     }
 
     /**
@@ -201,4 +214,25 @@ public class Functions {
         return patterns;
     }
 
+    
+    public static void print(String fileName, List<Pattern> patterns,
+            List<Cluster> clusters, List<Pattern> centroids, Integer seed,
+            Float initialCost, Float finalCost, Long time) {
+        System.out.println("======================================================================\n"
+                + "    " + fileName + "\n"
+                + "======================================================================");
+        System.out.println("Lectura del dataset " + fileName);
+        System.out.println("Número de patrones: " + patterns.size());
+        System.out.println("Dimensión de los patrones: " + patterns.get(0).size());
+        System.out.println("Número de clusters: " + clusters.size());
+        System.out.println("Semilla: " + seed);
+        System.out.println("Tiempo de ejecución: " + time + " milisegundos");
+//        System.out.println("Número de centroides: " + centroids.size());
+//        System.out.println("    Centroide inicial 1: " + centroids.get(0).toString());
+//        System.out.println("    Centroide inicial 2: " + centroids.get(1).toString());
+//        System.out.println("    Coste inicial: " + initialCost);
+        System.out.println("===================== Coste final: " + finalCost + " ======================");
+        System.out.println("\n");
+
+    }
 }

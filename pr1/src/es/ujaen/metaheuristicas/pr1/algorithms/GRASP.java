@@ -27,7 +27,21 @@ public class GRASP {
      */
     public static float run(List<Cluster> clusters, List<Pattern> centroids) {
         
-        List<Pattern> restrictedList = new ArrayList();
+        /*
+        repetir mientras(no se satisfaga el criterio de parada)
+            S <- construccion de solucion greedy
+            S'<- Busqueda local(S)
+            Mejor solución <- S'
+        Devolver mejor solución
+        
+        repetir 25 veces y comprobar si se han hecho 10000 iteracions 
+        si no se han hecho continuar hasta las 10000
+        */
+        
+        int iterations = 0;
+        for(int count=0; count<25 || iterations <10000; count++){
+            
+        }
         
         return 0f;
     }
