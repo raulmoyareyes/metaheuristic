@@ -29,23 +29,12 @@ public class Functions {
 
         /* Coste de la solución */
         float cost = 0;
-        /* Resta de la distancia de cada componente entre el patrón y el centroide */
-        float sub = 0;
-        /* Distancia entre el patrón y el centroide */
-        float add = 0;
         /* Recorre los clusters */
         for (int i = 0; i < clusters.size(); i++) {
             /* Recorre los patrones de cada cluster */
             Cluster cluster = clusters.get(i);
             for (int j = 0; j < cluster.size(); j++) {
-                /* Recorre los datos de cada patrón */
-                Pattern pattern = cluster.get(j);
-                for (int k = 0; k < pattern.size(); k++) {
-                    sub = pattern.get(k) - centroids.get(i).get(k);
-                    add += sub * sub;
-                }
-                cost += add;
-                add = 0;
+                cost += distance(centroids.get(i), cluster.get(j));
             }
         }
 
@@ -91,6 +80,23 @@ public class Functions {
     }
 
     /**
+     * Método para calcular la distancia entre dos patrones.
+     *
+     * @param first Un patrón con el que comparar (corresponde al centroide).
+     * @param second Un patrón con el que comparar (corresponde al patrón).
+     */
+    private static Float distance(Pattern first, Pattern second) {
+        /* Distancia entre el patrón y el centroide */
+        float add = 0;
+        for (int k = 0; k < second.size(); k++) {
+            /* Resta de la distancia de cada componente entre el patrón y el centroide */
+            float sub = second.get(k) - first.get(k);
+            add += sub * sub;
+        }
+        return add;
+    }
+
+    /**
      * Método que calcula los centroides de los clusters.
      *
      * @param clusters List de {@link Cluster} con todos los patrones asignados.
@@ -102,42 +108,30 @@ public class Functions {
         List<Pattern> centroids = new ArrayList<>();
         /* Recorre los clusters */
         for (Cluster c : clusters) {
-            Pattern centroid = new Pattern();
-            /* Recorre cada patrón sumando cada dimension y realizando la media */
-            for (int i = 0; c.size() > 0 && i < c.get(0).size(); i++) {
-                float avg = 0;
-                for (Pattern p : c) {
-                    avg += p.get(i);
-                }
-                centroid.add(avg / c.size());
-            }
-            centroids.add(centroid);
+            centroids.add(calculateCentroid(c.get()));
         }
         return centroids;
     }
 
     /**
+     * Método que calcula el centroide de un cluster.
      *
-     * @param clusters
-     * @param seed
-     * @return
-     * @deprecated No implementada.
+     * @param patterns List de {@link Pattern} para calcular un centroide.
+     * @return {@link Pattern} que representan el centroide de un cluster.
      */
-    public static List<Pattern> calculateCentroids(List<Cluster> clusters, Integer seed) {
-        /*
-        Solucion ={}
-        repetir mientras(no se haya construido){
-            crear lista restringida
-            s<- seleccion aleatoria de un elemento de la lista restringida
-            Solucion <- Solucion+s
-        devolver S
-        
-        alpha = 0.3 umbral
-         */
+    public static Pattern calculateCentroid(List<Pattern> patterns) {
 
-        List<Pattern> restrictedList = new ArrayList();
+        Pattern centroid = new Pattern();
+        /* Recorre cada patrón sumando cada dimension y realizando la media */
+        for (int i = 0; patterns.size() > 0 && i < patterns.get(0).size(); i++) {
+            float avg = 0;
+            for (Pattern p : patterns) {
+                avg += p.get(i);
+            }
+            centroid.add(avg / patterns.size());
+        }
 
-        return new ArrayList<>();
+        return centroid;
     }
 
     /**
@@ -148,7 +142,7 @@ public class Functions {
      * @param numberClusters Número de clusters que se van a crear.
      * @return List de {@link Cluster} con todos los patrones asignados.
      */
-    public static List<Cluster> setRandom(List<Pattern> patterns, Integer seed, int numberClusters) {
+    public static List<Cluster> setRandom(List<Pattern> patterns, Integer seed, Integer numberClusters) {
         /* Números aleatorios a partir de una semilla */
         Random rand = new Random(seed);
         /* ArrayList para asignar todos los patrones a los clusters */
@@ -171,12 +165,138 @@ public class Functions {
     /**
      *
      * @param patterns
-     * @param numberClusters
+     * @param seed Semilla a utilizar para la generación de la solución inicial.
+     * @param numberClusters Número de clusters a generar.
+     * @param threshold Umbral de los candidatos de la lista restringida para la
+     * construcción de la solución greedy.
      * @return
      * @deprecated No está implementada
      */
-    public static List<Cluster> setGreedy(List<Pattern> patterns, int numberClusters) {
-        return new ArrayList();
+    public static List<Cluster> setGreedy(List<Pattern> patterns, Integer seed, Integer numberClusters, Double threshold) {
+        // aleatorio
+        Random rand = new Random(seed);
+        // copia de patrones 
+        List<Pattern> restPattern = new ArrayList(patterns);
+        // inicialización de los clusters y los centroides
+        List<Cluster> clusters = new ArrayList<>();
+        List<Pattern> centroids = new ArrayList<>();
+
+        // calcula centroide de cada cluster
+        for (int i = 0; i < numberClusters; i++) {
+            // crear lista restringida con las posiciones dentro de restPattern
+            List<Integer> restrictedList = createRestrictedList(restPattern, threshold);
+            // seleccionar aleatorio de la lista restringida
+            int positionCandidate = restrictedList.remove(rand.nextInt(restrictedList.size()));
+            // asignación del patron a un cluster
+            Pattern candidate = restPattern.remove(positionCandidate);
+            clusters.add(new Cluster());
+            clusters.get(i).add(candidate);
+            centroids.add(i, candidate);
+        }
+
+        // se asignan el resto de patrones a los cluster
+        for (int j = 0; j < restPattern.size(); j++) {
+            float distance = 0;
+            int assigned = 0;
+            for (int i = 0; i < centroids.size(); i++) {
+                float actualDistance = distance(centroids.get(i), restPattern.get(j));
+                if (actualDistance < distance || distance == 0) {
+                    distance = actualDistance;
+                    assigned = i;
+                }
+            }
+            clusters.get(assigned).add(restPattern.remove(j));
+            j--;
+        }
+
+        return clusters;
+    }
+
+    /**
+     * Método para crear la lista restringida de la construcción de la solución
+     * inicial greedy.
+     *
+     * @param patterns Lista de patrones con los que crear la lista restringida.
+     * @param threshold Umbral de los candidatos de la lista restringida.
+     * @return List de {@link Pattern} que representa la lista restringida.
+     */
+    private static List<Integer> createRestrictedList(List<Pattern> patterns, Double threshold) {
+        /* Busca el patrón más cercano al centroide */
+        Pattern centroid = calculateCentroid(patterns);
+        List<Float> distances = distances(patterns, centroid);
+        Pattern nearest = nearest(patterns, centroid, distances);
+        /* Busca los cercanos a nearest que estén por debajo del umbral */
+        List<Integer> near = near(patterns, nearest, distances, threshold);
+
+        return near;
+    }
+
+    /**
+     *
+     * @param patterns
+     * @param centroid
+     * @deprecated No implementado
+     */
+    private static Pattern nearest(List<Pattern> patterns, Pattern centroid, List<Float> distances) {
+
+        Pattern nearest = null;
+        float distance = distances.get(0);
+        for (int i = 0; i < patterns.size(); i++) {
+            if (distances.get(i) > distance) {
+                distance = distances.get(i);
+                nearest = patterns.get(i);
+            }
+        }
+        return nearest;
+    }
+
+    /**
+     *
+     * @param patterns
+     * @param centroid
+     * @deprecated No implementado
+     */
+    private static List<Integer> near(List<Pattern> patterns, Pattern centroid, List<Float> distances, Double threshold) {
+        float tolerance = calculateTolerance(distances, threshold);
+        List<Integer> near = new ArrayList();
+        for (int i = 0; i < distances.size(); i++) {
+            if (tolerance > distances.get(i)) {
+                near.add(i);
+            }
+        }
+        return near;
+    }
+
+    /**
+     *
+     * @deprecated
+     */
+    private static Float calculateTolerance(List<Float> distances, Double threshold) {
+        float best = 0;
+        float worst = 0;
+        for (Float distance : distances) {
+            if (distance > best || best == 0) {
+                best = distance;
+            } else if (distance < worst || worst == 0) {
+                worst = distance;
+            }
+        }
+        return best - 0.3f * worst;
+    }
+
+    /**
+     *
+     * @param patterns
+     * @param centroid
+     * @deprecated Sin terminar
+     */
+    private static List<Float> distances(List<Pattern> patterns, Pattern centroid) {
+        List<Float> distances = new ArrayList();
+
+        for (Pattern p : patterns) {
+            distances.add(distance(centroid, p));
+        }
+        return distances;
     }
 
     /**
@@ -214,7 +334,20 @@ public class Functions {
         return patterns;
     }
 
-    
+    /**
+     * Método para imprimir en consola el resultado de una ejecución.
+     *
+     * @param fileName Nombre del dataset utilizado.
+     * @param patterns List de patrones utilizados.
+     * @param clusters list de clusters utilizados con los patrones asignados a
+     * cada uno.
+     * @param centroids List de patrones que representa los centroides de cada
+     * cluster.
+     * @param seed Semilla utilizada.
+     * @param initialCost Coste de la solución inicial.
+     * @param finalCost Coste de la solución tras aplicar el algoritmo.
+     * @param time Tiempo de ejecución del algoritmo.
+     */
     public static void print(String fileName, List<Pattern> patterns,
             List<Cluster> clusters, List<Pattern> centroids, Integer seed,
             Float initialCost, Float finalCost, Long time) {
@@ -230,7 +363,7 @@ public class Functions {
 //        System.out.println("Número de centroides: " + centroids.size());
 //        System.out.println("    Centroide inicial 1: " + centroids.get(0).toString());
 //        System.out.println("    Centroide inicial 2: " + centroids.get(1).toString());
-//        System.out.println("    Coste inicial: " + initialCost);
+        System.out.println("Coste inicial: " + initialCost);
         System.out.println("===================== Coste final: " + finalCost + " ======================");
         System.out.println("\n");
 

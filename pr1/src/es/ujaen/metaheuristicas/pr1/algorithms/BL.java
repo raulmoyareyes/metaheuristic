@@ -16,18 +16,19 @@ import java.util.List;
 public class BL {
 
     /**
-     * Método para lanzar el algorimo de búsqueda local.
+     * Método para lanzar el algorimo de búsqueda local con solución inicial
+     * aleatoria.
      *
-     * @param fileName
-     * @param seed
-     * @param numberClusters
+     * @param fileName Nombre del archivo para realizar la carga de datos.
+     * @param seed Semilla a utilizar para la generación de la solución inicial.
+     * @param numberClusters Número de clusters a generar.
      * @return Float con el coste de la solución.
      */
-    public static float run(String fileName, Integer seed, Integer numberClusters) {
+    public static Float init(String fileName, Integer seed, Integer numberClusters) {
 
         /* Conjunto de todos los patrones */
         List<Pattern> patterns = Functions.readData(fileName);
-        
+
         /* Inicio de la cuenta del tiempo de ejecución */
         Long time = System.currentTimeMillis();
         /* Asignación de los patrones a cada cluster */
@@ -35,15 +36,38 @@ public class BL {
         /* Cálculo del centroide de cada cluster */
         List<Pattern> centroids = Functions.calculateCentroids(clusters);
         /* Coste de la solución inicial */
-        Float initialCost = Functions.objectiveFunction(clusters, centroids);
+        float initialCost = Functions.objectiveFunction(clusters, centroids);
+
+        /* Coste de la solución final */
+        float cost = run(clusters, centroids, initialCost);
+
+        /* Fin de la cuenta del tiempo de ejecución */
+        time = System.currentTimeMillis() - time;
+        /* Imprimir contenido en consola */
+        Functions.print(fileName, patterns, clusters, centroids, seed,
+                initialCost, cost, time);
+
+        return cost;
+    }
+
+    /**
+     * Método con el algoritmo de búsqueda local sin utilizar ningún método de
+     * generación de solución inicial.
+     *
+     * @param clusters Clusters con los patrones asignados.
+     * @param centroids Centroides de cada cluster.
+     * @param initialCost Coste de la solución inicial.
+     * @return Float con el coste de la solución generada mediante BL.
+     */
+    public static Float run(List<Cluster> clusters, List<Pattern> centroids, float initialCost) {
+
+        /* Coste de la solución actual */
+        float cost = initialCost;
 
         /* Itera si hay mejora */
         boolean improvement = true;
         /* Itera como máximo 10000 veces */
         int iterations = 10000;
-
-        /* Calcula el coste con la función objetivo inicial de los clusters */
-        float cost = Functions.objectiveFunction(clusters, centroids);
 
         /* Repite hasta que supere el núemro de iteraciones o no mejore */
         for (int count = 0; improvement && count < iterations;) {
@@ -76,12 +100,6 @@ public class BL {
                 }
             }
         }
-
-        /* Fin de la cuenta del tiempo de ejecución */
-        time = System.currentTimeMillis() - time;
-        /* Imprimir contenido en consola */
-        Functions.print(fileName, patterns, clusters, centroids, seed,
-                initialCost, cost, time);
 
         return cost;
     }

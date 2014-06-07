@@ -47,6 +47,15 @@ public class Pattern implements Iterable<Float> {
     }
 
     /**
+     * Método para obtener un List con todos los datos del patrón.
+     *
+     * @return List con todos los datos del patrón.
+     */
+    public List<Float> get() {
+        return this.datas;
+    }
+
+    /**
      * Método para eliminar un dato del patrón.
      *
      * @param index Posición del dato a eliminar en el patrón.

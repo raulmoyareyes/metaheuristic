@@ -3,10 +3,6 @@
  */
 package es.ujaen.metaheuristicas.pr1.algorithms;
 
-import es.ujaen.metaheuristicas.pr1.clustering.Cluster;
-import es.ujaen.metaheuristicas.pr1.clustering.Pattern;
-import java.util.List;
-
 /**
  * Algoritmo Búsqueda Tabú
  *
@@ -17,12 +13,13 @@ public class BT {
     /**
      * Método para lanzar el algorimo de búsqueda tabú.
      *
-     * @param clusters List de {@link Cluster} con los patrones asignados.
-     * @param centroids List de {@link Pattern} representando los centroides de
-     * los clusters.
+     * @param fileName Nombre del archivo para realizar la carga de datos.
+     * @param seed Semilla a utilizar para la generación de la solución inicial.
+     * @param numberClusters Número de clusters a generar.
      * @return Float con el coste de la solución.
+     * @deprecated No está implementado.
      */
-    public static float run(List<Cluster> clusters, List<Pattern> centroids) {
+    public static float init(String fileName, Integer seed, Integer numberClusters) {
         return 0f;
     }
 }

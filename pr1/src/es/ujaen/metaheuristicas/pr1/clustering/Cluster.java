@@ -48,6 +48,15 @@ public class Cluster implements Iterable<Pattern> {
     }
 
     /**
+     * Método para obtener un List con todos los patrones del cluster.
+     *
+     * @return List con todos los patrones del cluster.
+     */
+    public List<Pattern> get() {
+        return this.patterns;
+    }
+
+    /**
      * Método para eliminar un patrón del cluster.
      *
      * @param index Posición del patrón a eliminar en el cluster.
