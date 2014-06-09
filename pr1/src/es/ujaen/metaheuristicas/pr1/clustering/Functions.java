@@ -163,38 +163,39 @@ public class Functions {
     }
 
     /**
+     * Método para asignar los patrones a los clusters utilizando un algoritmo
+     * greedy.
      *
-     * @param patterns
+     * @param patterns Todos los patrones para asignarlos a los clusters.
      * @param seed Semilla a utilizar para la generación de la solución inicial.
      * @param numberClusters Número de clusters a generar.
      * @param threshold Umbral de los candidatos de la lista restringida para la
      * construcción de la solución greedy.
-     * @return
-     * @deprecated No está implementada
+     * @return List de {@link Cluster} con todos los patrones asignados.
      */
     public static List<Cluster> setGreedy(List<Pattern> patterns, Integer seed, Integer numberClusters, Double threshold) {
-        // aleatorio
+        /* Números aleatorios a partir de una semilla */
         Random rand = new Random(seed);
-        // copia de patrones 
+        /* Crea una copia de la lista de patrones */
         List<Pattern> restPattern = new ArrayList(patterns);
-        // inicialización de los clusters y los centroides
+        /* Inicializa los clusters y los centroides */
         List<Cluster> clusters = new ArrayList<>();
         List<Pattern> centroids = new ArrayList<>();
 
-        // calcula centroide de cada cluster
+        /* Calcula el centroide de cada cluster */
         for (int i = 0; i < numberClusters; i++) {
-            // crear lista restringida con las posiciones dentro de restPattern
+            /* Crea la lista restringida con las posiciones de los patrones en restPattern */
             List<Integer> restrictedList = createRestrictedList(restPattern, threshold);
-            // seleccionar aleatorio de la lista restringida
+            /* Selecciona una posición aleatoria de la lista restringida */
             int positionCandidate = restrictedList.remove(rand.nextInt(restrictedList.size()));
-            // asignación del patron a un cluster
+            /* Asigna el patrón a un cluster */
             Pattern candidate = restPattern.remove(positionCandidate);
             clusters.add(new Cluster());
             clusters.get(i).add(candidate);
             centroids.add(i, candidate);
         }
 
-        // se asignan el resto de patrones a los cluster
+        /* Asigna el resto de patrones al cluster que menos distancia tenga */
         for (int j = 0; j < restPattern.size(); j++) {
             float distance = 0;
             int assigned = 0;
@@ -224,25 +225,26 @@ public class Functions {
         /* Busca el patrón más cercano al centroide */
         Pattern centroid = calculateCentroid(patterns);
         List<Float> distances = distances(patterns, centroid);
-        Pattern nearest = nearest(patterns, centroid, distances);
+        Pattern nearest = nearest(patterns, distances);
         /* Busca los cercanos a nearest que estén por debajo del umbral */
-        List<Integer> near = near(patterns, nearest, distances, threshold);
+        List<Integer> near = near(patterns, nearest, threshold);
 
         return near;
     }
 
     /**
+     * Método para buscar el patrón con menos distancia.
      *
-     * @param patterns
-     * @param centroid
-     * @deprecated No implementado
+     * @param patterns Lista de patrones para obtener el de menor distancia.
+     * @param distances Distancia de cada patrón.
+     * @return El patrón con menos distancia.
      */
-    private static Pattern nearest(List<Pattern> patterns, Pattern centroid, List<Float> distances) {
+    private static Pattern nearest(List<Pattern> patterns, List<Float> distances) {
 
         Pattern nearest = null;
         float distance = distances.get(0);
         for (int i = 0; i < patterns.size(); i++) {
-            if (distances.get(i) > distance) {
+            if (distances.get(i) < distance) {
                 distance = distances.get(i);
                 nearest = patterns.get(i);
             }
@@ -251,13 +253,19 @@ public class Functions {
     }
 
     /**
+     * Método para buscar una lista de posiciones de patrones cercanos al
+     * centroide.
      *
-     * @param patterns
-     * @param centroid
-     * @deprecated No implementado
+     * @param patterns Lista de patrones con los que crear la lista de
+     * posiciones de patrones cercanos.
+     * @param centroid Centroide para calcular la distancia.
+     * @param threshold Factor para calcular el umbral.
+     * @return Lista de posiciones de los patrones que entran en la lista de
+     * cercanos.
      */
-    private static List<Integer> near(List<Pattern> patterns, Pattern centroid, List<Float> distances, Double threshold) {
-        float tolerance = calculateTolerance(distances, threshold);
+    private static List<Integer> near(List<Pattern> patterns, Pattern centroid, Double threshold) {
+        List<Float> distances = distances(patterns, centroid);
+        double tolerance = calculateTolerance(distances, threshold);
         List<Integer> near = new ArrayList();
         for (int i = 0; i < distances.size(); i++) {
             if (tolerance > distances.get(i)) {
@@ -268,10 +276,15 @@ public class Functions {
     }
 
     /**
+     * Método para calcular el umbral de patrones aceptados en la lista
+     * restringida.
      *
-     * @deprecated
+     * @param distances Distancia de cada patrón.
+     * @param threshold Factor para calcular el umbral.
+     * @return Double que representa el umbral para aceptar patrones en la lista
+     * restringida.
      */
-    private static Float calculateTolerance(List<Float> distances, Double threshold) {
+    private static Double calculateTolerance(List<Float> distances, Double threshold) {
         float best = 0;
         float worst = 0;
         for (Float distance : distances) {
@@ -281,14 +294,15 @@ public class Functions {
                 worst = distance;
             }
         }
-        return best - 0.3f * worst;
+        return best - threshold * worst;
     }
 
     /**
+     * Método para calcular la distancia entre los patrones y el centroide.
      *
-     * @param patterns
-     * @param centroid
-     * @deprecated Sin terminar
+     * @param patterns Lista de patrones.
+     * @param centroid Centroide con el que calcular las distancias.
+     * @return List de float con la distancia de cada patrón en el mismo orden.
      */
     private static List<Float> distances(List<Pattern> patterns, Pattern centroid) {
         List<Float> distances = new ArrayList();
