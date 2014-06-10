@@ -4,6 +4,7 @@
  */
 package es.ujaen.metaheuristicas.pr1.clustering;
 
+import es.ujaen.metaheuristicas.pr1.utils.Pair;
 import es.ujaen.metaheuristicas.pr1.utils.ReadFile;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -138,13 +139,11 @@ public class Functions {
      * Método para asignar los patrones a los clusters de forma aleatoria.
      *
      * @param patterns Todos los patrones para asignarlos a los clusters.
-     * @param seed Semilla para generar los números aleatorios.
+     * @param rand Números aleatorios a partir de una semilla.
      * @param numberClusters Número de clusters que se van a crear.
      * @return List de {@link Cluster} con todos los patrones asignados.
      */
-    public static List<Cluster> setRandom(List<Pattern> patterns, Integer seed, Integer numberClusters) {
-        /* Números aleatorios a partir de una semilla */
-        Random rand = new Random(seed);
+    public static List<Cluster> setRandom(List<Pattern> patterns, Random rand, Integer numberClusters) {
         /* ArrayList para asignar todos los patrones a los clusters */
         List<Cluster> clusters = new ArrayList();
         /* Inicialización del número de cluster */
@@ -167,15 +166,13 @@ public class Functions {
      * greedy.
      *
      * @param patterns Todos los patrones para asignarlos a los clusters.
-     * @param seed Semilla a utilizar para la generación de la solución inicial.
+     * @param rand Números aleatorios a partir de una semilla.
      * @param numberClusters Número de clusters a generar.
      * @param threshold Umbral de los candidatos de la lista restringida para la
      * construcción de la solución greedy.
      * @return List de {@link Cluster} con todos los patrones asignados.
      */
-    public static List<Cluster> setGreedy(List<Pattern> patterns, Integer seed, Integer numberClusters, Double threshold) {
-        /* Números aleatorios a partir de una semilla */
-        Random rand = new Random(seed);
+    public static List<Cluster> setGreedy(List<Pattern> patterns, Random rand, Integer numberClusters, Double threshold) {
         /* Crea una copia de la lista de patrones */
         List<Pattern> restPattern = new ArrayList(patterns);
         /* Inicializa los clusters y los centroides */
@@ -311,6 +308,13 @@ public class Functions {
             distances.add(distance(centroid, p));
         }
         return distances;
+    }
+
+    /**
+     * @deprecated no implementada
+     */
+    public static List<Pair<Integer, Integer>> createListTabu() {
+        return new ArrayList();
     }
 
     /**

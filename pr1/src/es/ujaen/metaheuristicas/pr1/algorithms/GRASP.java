@@ -7,6 +7,7 @@ import es.ujaen.metaheuristicas.pr1.clustering.Cluster;
 import es.ujaen.metaheuristicas.pr1.clustering.Functions;
 import es.ujaen.metaheuristicas.pr1.clustering.Pattern;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Algoritmo GRASP
@@ -29,6 +30,8 @@ public class GRASP {
 
         /* Conjunto de todos los patrones */
         List<Pattern> patterns = Functions.readData(fileName);
+        /* Números aleatorios a partir de una semilla */
+        Random rand = new Random(seed);
 
         /* Declaración de variables */
         List<Cluster> clusters = null;
@@ -46,7 +49,7 @@ public class GRASP {
         /* Se ejecuta 25 veces */
         for (int i = 0; i < execution; i++) {
             /* Asignación de los patrones a cada cluster */
-            clusters = Functions.setGreedy(patterns, seed, numberClusters, threshold);
+            clusters = Functions.setGreedy(patterns, rand, numberClusters, threshold);
             /* Cálculo del centroide de cada cluster */
             centroids = Functions.calculateCentroids(clusters);
             /* Coste de la solución greedy */

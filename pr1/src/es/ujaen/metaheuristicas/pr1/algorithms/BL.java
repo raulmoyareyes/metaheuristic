@@ -7,6 +7,7 @@ import es.ujaen.metaheuristicas.pr1.clustering.Cluster;
 import es.ujaen.metaheuristicas.pr1.clustering.Functions;
 import es.ujaen.metaheuristicas.pr1.clustering.Pattern;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Algoritmo Búsqueda Local
@@ -28,11 +29,13 @@ public class BL {
 
         /* Conjunto de todos los patrones */
         List<Pattern> patterns = Functions.readData(fileName);
+        /* Números aleatorios a partir de una semilla */
+        Random rand = new Random(seed);
 
         /* Inicio de la cuenta del tiempo de ejecución */
         Long time = System.currentTimeMillis();
         /* Asignación de los patrones a cada cluster */
-        List<Cluster> clusters = Functions.setRandom(patterns, seed, numberClusters);
+        List<Cluster> clusters = Functions.setRandom(patterns, rand, numberClusters);
         /* Cálculo del centroide de cada cluster */
         List<Pattern> centroids = Functions.calculateCentroids(clusters);
         /* Coste de la solución inicial */
