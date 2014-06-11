@@ -6,6 +6,7 @@ package es.ujaen.metaheuristicas.pr1.algorithms;
 import es.ujaen.metaheuristicas.pr1.clustering.Cluster;
 import es.ujaen.metaheuristicas.pr1.clustering.Functions;
 import es.ujaen.metaheuristicas.pr1.clustering.Pattern;
+import es.ujaen.metaheuristicas.pr1.utils.Matrix;
 import es.ujaen.metaheuristicas.pr1.utils.Pair;
 import java.util.ArrayList;
 import java.util.List;
@@ -83,8 +84,10 @@ public class BT {
             size += c.size();
         }
         int sizeTabuList = size / 3;
-        List<Pair<Integer, Integer>> tabuList = Functions.createListTabu();
+        List<Pair<Integer, Integer>> tabuList = new ArrayList();
         float cost = initialCost;
+
+        Matrix<Integer> incidences = new Matrix(patterns.size(), clusters.size());
 
         // se repite 10000 veces
         for (int i = 0; i < iterations; i++) {
@@ -120,28 +123,41 @@ public class BT {
                 centroids = Functions.calculateCentroids(clusters);
                 // actualizar lista tabú
                 tabuList.add(bestMove);
-                if (tabuList.size() < sizeTabuList) {
+                if (tabuList.size() > sizeTabuList) {
                     tabuList.remove(0);
                 }
+                Integer count = incidences.get((int) bestMove.first, (int) bestMove.second);
+                incidences.add((int) bestMove.first, (int) bestMove.second, count + 1);
+
             }
 
             //reinicilizar cada 2000
             if (i % reset == 0 && i != 0) {
+                // ampliamos o reducimos la lista tabú en un 25%
                 float probability = rand.nextFloat();
+                if (probability < 0.5) {
+                    //recudir tamaño 25%
+                    sizeTabuList = (int) (sizeTabuList - sizeTabuList * 0.25);
+                    tabuList = new ArrayList();
+                } else {
+                    //ampliar tamaño 25%
+                    sizeTabuList = (int) (sizeTabuList + sizeTabuList * 0.25);
+                    tabuList = new ArrayList();
+                }
+                probability = rand.nextFloat();
                 if (probability < probabilityResetInitial) {
                     //reinicio a una solucion inicial
                     clusters = Functions.setRandom(patterns, rand, numberClusters);
                     centroids = Functions.calculateCentroids(clusters);
                     cost = Functions.objectiveFunction(clusters, centroids);
-                    tabuList.clear();
                 } else if (probability < probabilityResetInitial + probabilityResetSolution) {
                     //reinicio a una solucion actual
-                    // ampliamos o reducimos la lista tabú en un 25%
-                    // modificando el tamaño de la lista y eliminando los que sobran creo que es en cualquier caso.
-                    
+
                 } else if (probability < probabilityResetInitial + probabilityResetSolution + probabilityResetMemory) {
-                    //reinicio a una solucion inicial
-                    
+                    //crear una solucion inicial menos frecuente.
+                    clusters = Functions.setLessFrecuency(patterns, rand, numberClusters, incidences);
+                    centroids = Functions.calculateCentroids(clusters);
+                    cost = Functions.objectiveFunction(clusters, centroids);
                 }
             }
         }

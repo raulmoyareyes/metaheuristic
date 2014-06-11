@@ -4,6 +4,7 @@
  */
 package es.ujaen.metaheuristicas.pr1.clustering;
 
+import es.ujaen.metaheuristicas.pr1.utils.Matrix;
 import es.ujaen.metaheuristicas.pr1.utils.Pair;
 import es.ujaen.metaheuristicas.pr1.utils.ReadFile;
 import java.io.UnsupportedEncodingException;
@@ -211,6 +212,34 @@ public class Functions {
     }
 
     /**
+     *
+     * @deprecated No implementada
+     */
+    public static List<Cluster> setLessFrecuency(List<Pattern> patterns, Random rand, Integer numberClusters, Matrix incidences) {
+        /* ArrayList para asignar todos los patrones a los clusters */
+        List<Cluster> clusters = new ArrayList();
+        /* Inicialización del número de cluster */
+        for (int i = 0; i < numberClusters; i++) {
+            clusters.add(new Cluster());
+            clusters.get(i).add(patterns.get(i));
+        }
+        for (int i = numberClusters; i < patterns.size(); i++) {
+            int minor = (int) incidences.get(i, 0);
+            int position = 0;
+            for (int j = 0; j < numberClusters; j++) {
+                int actual = (int) incidences.get(i, j);
+                if (actual<minor) {
+                    minor = actual;
+                    position = j;
+                }
+            }
+            clusters.get(position).add(patterns.get(i));
+        }
+
+        return clusters;
+    }
+
+    /**
      * Método para crear la lista restringida de la construcción de la solución
      * inicial greedy.
      *
@@ -308,13 +337,6 @@ public class Functions {
             distances.add(distance(centroid, p));
         }
         return distances;
-    }
-
-    /**
-     * @deprecated no implementada
-     */
-    public static List<Pair<Integer, Integer>> createListTabu() {
-        return new ArrayList();
     }
 
     /**
