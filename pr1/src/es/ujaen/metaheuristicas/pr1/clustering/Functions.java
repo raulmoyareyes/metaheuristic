@@ -5,7 +5,6 @@
 package es.ujaen.metaheuristicas.pr1.clustering;
 
 import es.ujaen.metaheuristicas.pr1.utils.Matrix;
-import es.ujaen.metaheuristicas.pr1.utils.Pair;
 import es.ujaen.metaheuristicas.pr1.utils.ReadFile;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;

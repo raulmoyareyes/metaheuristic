@@ -114,9 +114,13 @@ public class BT {
                         do {
                             assigned = rand.nextInt(clusters.size());
                         } while (assigned == k);
+                        /* Posición aleatoria de un patrón para intercambiar */
                         int patternPosition = rand.nextInt(clusters.get(k).size());
+                        /* Mejora del coste tras el intercambio */
                         float actualCost = Functions.factorize(clusters, centroids, assigned, k, patternPosition);
+                        /* Almacena el movimiento */
                         Pair<Integer, Integer> actualMove = new Pair(patternPosition, assigned);
+                        /* Almacena el mejor coste y el mejor movimiento si no está en la lista tabú */
                         if ((actualCost < best) && !tabuList.contains(actualMove)) {
                             best = actualCost;
                             bestMove = actualMove;
@@ -125,7 +129,9 @@ public class BT {
                     }
                 }
             }
+            /* Si mejora recalculamos */
             if (best < 0 && bestMove != null) {
+                /* Coste actual de la solución */
                 cost += best;
                 /* Cambio del patrón al nuevo cluster */
                 clusters.get((int) bestMove.second).add(clusters.get(cluster).remove((int) bestMove.first));
@@ -136,35 +142,37 @@ public class BT {
                 if (tabuList.size() > sizeTabuList) {
                     tabuList.remove(0);
                 }
+                /* Actualiza la matriz de incidencia */
                 Integer count = incidences.get((int) bestMove.first, (int) bestMove.second);
                 incidences.add((int) bestMove.first, (int) bestMove.second, count + 1);
 
             }
 
-            //reinicilizar cada 2000
+            /* Cada 2000 iteraciones se produce un reinicio */
             if (i % reset == 0 && i != 0) {
-                // ampliamos o reducimos la lista tabú en un 25%
+                /* Probabilidad de ampliar o reducir el tamaño de la lista tabú */
                 float probability = rand.nextFloat();
                 if (probability < 0.5) {
-                    //recudir tamaño 25%
+                    /* Reduce la lista tabú un 25% */
                     sizeTabuList = (int) (sizeTabuList - sizeTabuList * 0.25);
                     tabuList = new ArrayList();
                 } else {
-                    //ampliar tamaño 25%
+                    /* Amplia la lista tabú un 25% */
                     sizeTabuList = (int) (sizeTabuList + sizeTabuList * 0.25);
                     tabuList = new ArrayList();
                 }
+                /* Probabilidad de realizar uno de los tipos de reinicialización */
                 probability = rand.nextFloat();
                 if (probability < probabilityResetInitial) {
-                    //reinicio a una solucion inicial
+                    /* Reinicio a una solución aleatoria inicial */
                     clusters = Functions.setRandom(patterns, rand, numberClusters);
                     centroids = Functions.calculateCentroids(clusters);
                     cost = Functions.objectiveFunction(clusters, centroids);
                 } else if (probability < probabilityResetInitial + probabilityResetSolution) {
-                    //reinicio a una solucion actual
-
+                    /* Reinicio a la mejor solución actual */
+                    /* No hay que hacer nada porque ya trabajo con la mejor solución inicial */
                 } else if (probability < probabilityResetInitial + probabilityResetSolution + probabilityResetMemory) {
-                    //crear una solucion inicial menos frecuente.
+                    /* Reinicio a una solución proco frecuente */
                     clusters = Functions.setLessFrecuency(patterns, numberClusters, incidences);
                     centroids = Functions.calculateCentroids(clusters);
                     cost = Functions.objectiveFunction(clusters, centroids);
