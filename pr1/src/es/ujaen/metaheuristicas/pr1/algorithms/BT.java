@@ -26,7 +26,6 @@ public class BT {
      * @param seed Semilla a utilizar para la generación de la solución inicial.
      * @param numberClusters Número de clusters a generar.
      * @return Float con el coste de la solución.
-     * @deprecated No está implementado.
      */
     public static float init(String fileName, Integer seed, Integer numberClusters) {
 
@@ -67,38 +66,49 @@ public class BT {
      * @param patterns Todos los patrones para asignarlos a los clusters.
      * @param numberClusters Número de clusters que se van a crear.
      * @return Float con el coste de la solución generada mediante BL.
-     * @deprecated no implementada.
+     * @deprecated Falta terminar de comentar.
      */
     public static Float run(List<Cluster> clusters, List<Pattern> centroids,
             float initialCost, Random rand, List<Pattern> patterns, Integer numberClusters) {
-
+        /* Número de repeticiones del algoritmo*/
         int iterations = 10000;
+        /* Iteraciones para reinicialización */
         int reset = 2000;
+        /* Número de soluciones generadas en cada iteración */
         int solutionsGenerated = 20;
+        /* Probabilidad de reinicializar a una solución aleatoria */
         double probabilityResetInitial = 0.25;
+        /* Probabilidad de reinicializar a la mejor solución */
         double probabilityResetSolution = 0.25;
+        /* Probabilidad de reinicializar a una solución menos frecuente */
         double probabilityResetMemory = 0.50;
+        /* Probabilidad de asignar el cluster a un patrón */
         double probabilityCluster = 0.05;
+        /* Calculo de tamaño de la lista tabú */
         int size = 0;
         for (Cluster c : clusters) {
             size += c.size();
         }
         int sizeTabuList = size / 3;
+        /* Inicialización de la lista tabú */
         List<Pair<Integer, Integer>> tabuList = new ArrayList();
+        /* Coste inicial de la solución */
         float cost = initialCost;
 
+        /* Matriz de incidencia de cada patrón en los clusters */
         Matrix<Integer> incidences = new Matrix(patterns.size(), clusters.size());
 
-        // se repite 10000 veces
+        /* Repite 10000 veces */
         for (int i = 0; i < iterations; i++) {
-            // en cada iteracion se generan 20 soluciones y nos quedamos con la mejor
             float best = 0;
             int cluster = 0;
             Pair bestMove = null;
-            // sacar 20 soluciones
+            /* Genera 20 soluciones en cada iteración */
             for (int j = 0; j < solutionsGenerated; j++) {
+                /* Recorre cada cluster */
                 for (int k = 0; k < clusters.size(); k++) {
                     float probability = rand.nextFloat();
+                    /* Probabilidad de asignar el patrón al cluster */
                     if (probability < probabilityCluster) {
                         int assigned;
                         do {
@@ -155,7 +165,7 @@ public class BT {
 
                 } else if (probability < probabilityResetInitial + probabilityResetSolution + probabilityResetMemory) {
                     //crear una solucion inicial menos frecuente.
-                    clusters = Functions.setLessFrecuency(patterns, rand, numberClusters, incidences);
+                    clusters = Functions.setLessFrecuency(patterns, numberClusters, incidences);
                     centroids = Functions.calculateCentroids(clusters);
                     cost = Functions.objectiveFunction(clusters, centroids);
                 }

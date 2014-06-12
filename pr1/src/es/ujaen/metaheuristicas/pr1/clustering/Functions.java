@@ -212,10 +212,15 @@ public class Functions {
     }
 
     /**
+     * Método para asignar los patrones a los clusters utilizando una matriz de
+     * frecuencias.
      *
-     * @deprecated No implementada
+     * @param patterns Todos los patrones para asignarlos a los clusters.
+     * @param numberClusters Número de clusters a generar.
+     * @param incidences Matriz de indicencias de cada patrón en cada cluster.
+     * @return List de {@link Cluster} con todos los patrones asignados.
      */
-    public static List<Cluster> setLessFrecuency(List<Pattern> patterns, Random rand, Integer numberClusters, Matrix incidences) {
+    public static List<Cluster> setLessFrecuency(List<Pattern> patterns, Integer numberClusters, Matrix incidences) {
         /* ArrayList para asignar todos los patrones a los clusters */
         List<Cluster> clusters = new ArrayList();
         /* Inicialización del número de cluster */
@@ -223,12 +228,13 @@ public class Functions {
             clusters.add(new Cluster());
             clusters.get(i).add(patterns.get(i));
         }
+        /* Recorre cada patrón y lo asigna al cluster menos frecuente */
         for (int i = numberClusters; i < patterns.size(); i++) {
             int minor = (int) incidences.get(i, 0);
             int position = 0;
             for (int j = 0; j < numberClusters; j++) {
                 int actual = (int) incidences.get(i, j);
-                if (actual<minor) {
+                if (actual < minor) {
                     minor = actual;
                     position = j;
                 }

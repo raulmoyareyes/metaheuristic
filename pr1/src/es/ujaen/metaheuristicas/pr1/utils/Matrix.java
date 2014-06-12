@@ -14,11 +14,12 @@ import java.util.List;
  * @author Raúl Moya Reyes <www.raulmoya.es>
  *
  * @param <A> Tipo de objeto que almacena la matriz.
- * @deprecated Puede no funcionar con cualquier tipo de objeto.no 
+ * @deprecated Puede no funcionar con cualquier tipo de objeto. Revisar el
+ * constructor.
  */
 public class Matrix<A> {
 
-    private List<List<A>> cell;
+    private final List<List<A>> cell;
 
     /**
      * Constructor para inicializar la matriz a un número de filas y columnas.
@@ -37,10 +38,24 @@ public class Matrix<A> {
         }
     }
 
+    /**
+     * Método para obtener el contenido de una posición concreta dentro de la
+     * matriz
+     *
+     * @param row Posición de la fila.
+     * @param column Posición de la columna.
+     * @return Objeto almacenado en la posición indicada con la fila y columna.
+     */
     public A get(int row, int column) {
         return this.cell.get(row).get(column);
     }
 
+    /**
+     * Método para añadir un objeto en una fila y columna concreta.
+     * @param row Posición de la fila.
+     * @param column Posición de la columna.
+     * @param data Objeto a insertar en esa posición.
+     */
     public void add(int row, int column, A data) {
         this.cell.get(row).set(column, data);
     }
