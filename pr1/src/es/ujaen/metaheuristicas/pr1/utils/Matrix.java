@@ -9,15 +9,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Clase para simular una matriz.
  *
  * @author Raúl Moya Reyes <www.raulmoya.es>
- * @param <A>
- * @deprecated no comentada
+ *
+ * @param <A> Tipo de objeto que almacena la matriz.
+ * @deprecated Puede no funcionar con cualquier tipo de objeto.no 
  */
 public class Matrix<A> {
 
     private List<List<A>> cell;
 
+    /**
+     * Constructor para inicializar la matriz a un número de filas y columnas.
+     *
+     * @param rows Filas de la matriz.
+     * @param columns Columnas de la matriz.
+     */
     public Matrix(int rows, int columns) {
         this.cell = new ArrayList<>(rows);
         for (int i = 0; i < rows; i++) {
