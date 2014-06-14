@@ -95,4 +95,14 @@ public class Pattern implements Iterable<Float> {
         return this.datas.toString();
     }
 
+    /**
+     *
+     * @param other
+     * @return a
+     * @deprecated No terminado
+     */
+    public boolean equals(Pattern other) {
+        return this.datas.containsAll(other.get());
+    }
+
 }

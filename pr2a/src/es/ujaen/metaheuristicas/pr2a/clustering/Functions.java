@@ -4,7 +4,6 @@
  */
 package es.ujaen.metaheuristicas.pr2a.clustering;
 
-import es.ujaen.metaheuristicas.pr2a.utils.Matrix;
 import es.ujaen.metaheuristicas.pr2a.utils.ReadFile;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -162,155 +161,113 @@ public class Functions {
     }
 
     /**
-     * Método para asignar los patrones a los clusters utilizando un algoritmo
-     * greedy.
+     * Método para crear un cromosoma a partir de una lista de clusters
      *
-     * @param patterns Todos los patrones para asignarlos a los clusters.
+     * @param clusters List de {@link Cluster} con todos los patrones asignados.
+     * @param patterns
      * @param rand Números aleatorios a partir de una semilla.
-     * @param numberClusters Número de clusters a generar.
-     * @param threshold Umbral de los candidatos de la lista restringida para la
-     * construcción de la solución greedy.
-     * @return List de {@link Cluster} con todos los patrones asignados.
+     * @return Chromoseme generado a partir de los clusters.
+     * @deprecated comentar y probar.
      */
-    public static List<Cluster> setGreedy(List<Pattern> patterns, Random rand, Integer numberClusters, Double threshold) {
-        /* Crea una copia de la lista de patrones */
-        List<Pattern> restPattern = new ArrayList(patterns);
-        /* Inicializa los clusters y los centroides */
-        List<Cluster> clusters = new ArrayList<>();
-        List<Pattern> centroids = new ArrayList<>();
-
-        /* Calcula el centroide de cada cluster */
-        for (int i = 0; i < numberClusters; i++) {
-            /* Crea la lista restringida con las posiciones de los patrones en restPattern */
-            List<Integer> restrictedList = createRestrictedList(restPattern, threshold);
-            /* Selecciona una posición aleatoria de la lista restringida */
-            int positionCandidate = restrictedList.remove(rand.nextInt(restrictedList.size()));
-            /* Asigna el patrón a un cluster */
-            Pattern candidate = restPattern.remove(positionCandidate);
-            clusters.add(new Cluster());
-            clusters.get(i).add(candidate);
-            centroids.add(i, candidate);
+    public static Chromosome setChromosome(List<Cluster> clusters, List<Pattern> patterns, Random rand) {
+        // copia de clusters
+        List<Cluster> auxCluster = new ArrayList(clusters);
+        /* Inicializa el cromosoma */
+        Chromosome chromosome = new Chromosome();
+        for (Pattern pattern : patterns) {
+            chromosome.add(0);
         }
+        /* Crea un gen por cada patrón */
+        while (auxCluster.size() > 0) {
 
-        /* Asigna el resto de patrones al cluster que menos distancia tenga */
-        for (int j = 0; j < restPattern.size(); j++) {
-            float distance = 0;
-            int assigned = 0;
-            for (int i = 0; i < centroids.size(); i++) {
-                float actualDistance = distance(centroids.get(i), restPattern.get(j));
-                if (actualDistance < distance || distance == 0) {
-                    distance = actualDistance;
-                    assigned = i;
-                }
+            /* Selecciona un patrón de forma aleatoria y lo asigna a un gen */
+            int positionCluster = rand.nextInt(auxCluster.size());
+            int positionPatternCluster = rand.nextInt(auxCluster.get(positionCluster).size());
+            Pattern pattern = auxCluster.get(positionCluster).remove(positionPatternCluster);
+            int positionPattern = patterns.indexOf(pattern);
+            chromosome.set(positionPattern, positionCluster);
+
+            if (auxCluster.get(positionCluster).size() == 0) {
+                auxCluster.remove(positionCluster);
             }
-            clusters.get(assigned).add(restPattern.remove(j));
-            j--;
-        }
 
-        return clusters;
+        }
+        return chromosome;
     }
 
     /**
-     * Método para asignar los patrones a los clusters utilizando una matriz de
-     * frecuencias.
-     *
-     * @param patterns Todos los patrones para asignarlos a los clusters.
-     * @param numberClusters Número de clusters a generar.
-     * @param incidences Matriz de indicencias de cada patrón en cada cluster.
-     * @return List de {@link Cluster} con todos los patrones asignados.
+     * @deprecated Falta comentar, comprobar que
      */
-    public static List<Cluster> setLessFrecuency(List<Pattern> patterns, Integer numberClusters, Matrix incidences) {
-        /* ArrayList para asignar todos los patrones a los clusters */
-        List<Cluster> clusters = new ArrayList();
-        /* Inicialización del número de cluster */
-        for (int i = 0; i < numberClusters; i++) {
-            clusters.add(new Cluster());
-            clusters.get(i).add(patterns.get(i));
-        }
-        /* Recorre cada patrón y lo asigna al cluster menos frecuente */
-        for (int i = numberClusters; i < patterns.size(); i++) {
-            int minor = (int) incidences.get(i, 0);
-            int position = 0;
-            for (int j = 0; j < numberClusters; j++) {
-                int actual = (int) incidences.get(i, j);
-                if (actual < minor) {
-                    minor = actual;
-                    position = j;
-                }
-            }
-            clusters.get(position).add(patterns.get(i));
+    public static List<Chromosome> crossing(List<List<Cluster>> populationClusters, List<Chromosome> populationChromosomes, Integer father, Integer mother, Random rand) {
+
+        // cromosoma padre y madre
+        Chromosome fatherChromosome = new Chromosome(populationChromosomes.get(father)); //realizar copias y no usar referencias
+        Chromosome motherChromosome = new Chromosome(populationChromosomes.get(mother));
+
+        // cortes
+        int upperCut = rand.nextInt(fatherChromosome.size());
+        int lowerCut = rand.nextInt(fatherChromosome.size());
+
+        // comprobamos si upper es mayor que lower o igual
+        if (upperCut == lowerCut) {
+            upperCut++;
+        } else if (upperCut < lowerCut) {
+            int aux = upperCut;
+            upperCut = lowerCut;
+            lowerCut = aux;
         }
 
-        return clusters;
+        // busca los elementos no comunes
+        fatherChromosome.removeAll(populationChromosomes.get(mother), lowerCut, upperCut);
+        motherChromosome.removeAll(populationChromosomes.get(father), lowerCut, upperCut);
+
+        Chromosome son = new Chromosome();
+        Chromosome daughter = new Chromosome();
+        // crea los hijos
+        for (int i = 0; i < lowerCut; i++) {
+            son.add(motherChromosome.get(motherChromosome.size() - lowerCut + i));
+            daughter.add(fatherChromosome.get(fatherChromosome.size() - lowerCut + i));
+        }
+        for (int i = lowerCut; i < upperCut; i++) {
+            son.add(populationChromosomes.get(father).get(i));
+            daughter.add(populationChromosomes.get(mother).get(i));
+        }
+        for (int i = 0; i < fatherChromosome.size() - upperCut; i++) {
+            son.add(motherChromosome.get(i));
+            daughter.add(fatherChromosome.get(i));
+        }
+        
+        // los hijos
+        List<Chromosome> children = new ArrayList();
+        children.add(son);
+        children.add(daughter);
+        return children;
     }
+
+    /**
+     * @deprecated No implementado
+     */
+    public static void mutation() {
+
+    }
+    
     /**
      * 
-     * @deprecated No implementado 
+     * @param chromosome
+     * @param patterns
+     * @param numberClusters
+     * @return a
+     * @deprecated No terminado
      */
-    public static List<Chromosome> setRandomChromosomes(Integer numberChromosomes){
-        return new ArrayList();
-    }
-
-    /**
-     * Método para crear la lista restringida de la construcción de la solución
-     * inicial greedy.
-     *
-     * @param patterns Lista de patrones con los que crear la lista restringida.
-     * @param threshold Umbral de los candidatos de la lista restringida.
-     * @return List de {@link Pattern} que representa la lista restringida.
-     */
-    private static List<Integer> createRestrictedList(List<Pattern> patterns, Double threshold) {
-        /* Busca el patrón más cercano al centroide */
-        Pattern centroid = calculateCentroid(patterns);
-        List<Float> distances = distances(patterns, centroid);
-        Pattern nearest = nearest(patterns, distances);
-        /* Busca los cercanos a nearest que estén por debajo del umbral */
-        List<Integer> near = near(patterns, nearest, threshold);
-
-        return near;
-    }
-
-    /**
-     * Método para buscar el patrón con menos distancia.
-     *
-     * @param patterns Lista de patrones para obtener el de menor distancia.
-     * @param distances Distancia de cada patrón.
-     * @return El patrón con menos distancia.
-     */
-    private static Pattern nearest(List<Pattern> patterns, List<Float> distances) {
-
-        Pattern nearest = null;
-        float distance = distances.get(0);
-        for (int i = 0; i < patterns.size(); i++) {
-            if (distances.get(i) < distance) {
-                distance = distances.get(i);
-                nearest = patterns.get(i);
-            }
+    public static List<Cluster> getClusterChromosome(Chromosome chromosome, List<Pattern> patterns, Integer numberClusters){
+        List<Cluster> clusters = new ArrayList();
+        for(int i=0; i<numberClusters; i++){
+            clusters.add(new Cluster());
         }
-        return nearest;
-    }
-
-    /**
-     * Método para buscar una lista de posiciones de patrones cercanos al
-     * centroide.
-     *
-     * @param patterns Lista de patrones con los que crear la lista de
-     * posiciones de patrones cercanos.
-     * @param centroid Centroide para calcular la distancia.
-     * @param threshold Factor para calcular el umbral.
-     * @return Lista de posiciones de los patrones que entran en la lista de
-     * cercanos.
-     */
-    private static List<Integer> near(List<Pattern> patterns, Pattern centroid, Double threshold) {
-        List<Float> distances = distances(patterns, centroid);
-        double tolerance = calculateTolerance(distances, threshold);
-        List<Integer> near = new ArrayList();
-        for (int i = 0; i < distances.size(); i++) {
-            if (tolerance > distances.get(i)) {
-                near.add(i);
-            }
+        for(int i=0; i < chromosome.size(); i++){
+            clusters.get(chromosome.get(i)).add(patterns.get(i));
         }
-        return near;
+        return clusters;
     }
 
     /**
@@ -318,37 +275,34 @@ public class Functions {
      * restringida.
      *
      * @param distances Distancia de cada patrón.
-     * @param threshold Factor para calcular el umbral.
      * @return Double que representa el umbral para aceptar patrones en la lista
      * restringida.
      */
-    private static Double calculateTolerance(List<Float> distances, Double threshold) {
+    public static float bestDistance(List<Float> distances) {
         float best = 0;
-        float worst = 0;
         for (Float distance : distances) {
             if (distance > best || best == 0) {
                 best = distance;
-            } else if (distance < worst || worst == 0) {
-                worst = distance;
             }
         }
-        return best - threshold * worst;
+        return best;
     }
-
+    
     /**
-     * Método para calcular la distancia entre los patrones y el centroide.
-     *
-     * @param patterns Lista de patrones.
-     * @param centroid Centroide con el que calcular las distancias.
-     * @return List de float con la distancia de cada patrón en el mismo orden.
+     * 
+     * @return a
+     * @deprecated No implementada.
      */
-    private static List<Float> distances(List<Pattern> patterns, Pattern centroid) {
-        List<Float> distances = new ArrayList();
-
-        for (Pattern p : patterns) {
-            distances.add(distance(centroid, p));
+    public static Integer positionBestDistance(List<Float> distances){
+        float best = 0;
+        int position = 0;
+        for (int i=0; i<distances.size(); i++) {
+            if (distances.get(i) > best || best == 0) {
+                best = distances.get(i);
+                position = i;
+            }
         }
-        return distances;
+        return position;
     }
 
     /**
@@ -361,9 +315,11 @@ public class Functions {
     public static List<Pattern> readData(String fileName) {
         /* ArrayList con todos los patrones del dataset */
         List<Pattern> patterns = new ArrayList<>();
+
         try {
             /* Url relativa al paquete */
-            fileName = URLDecoder.decode(Functions.class.getResource("../instances/" + fileName).getFile(), "UTF-8");
+            fileName = URLDecoder.decode(Functions.class
+                    .getResource("../instances/" + fileName).getFile(), "UTF-8");
             /* Archivo con los datos */
             ReadFile file = new ReadFile(fileName);
             /* Líneas del archivo que corresponden con cada patrón */

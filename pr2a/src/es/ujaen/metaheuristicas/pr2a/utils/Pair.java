@@ -52,7 +52,7 @@ public class Pair<A, B> {
     @Override
     public boolean equals(Object other) {
         if (other instanceof Pair) {
-            Pair otherPair = (Pair) other;
+            Pair<A,B> otherPair = (Pair<A,B>) other;
             return ((this.first == otherPair.first
                     || (this.first != null && otherPair.first != null
                     && this.first.equals(otherPair.first)))
