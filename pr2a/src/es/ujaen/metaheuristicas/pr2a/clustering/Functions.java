@@ -4,6 +4,7 @@
  */
 package es.ujaen.metaheuristicas.pr2a.clustering;
 
+import es.ujaen.metaheuristicas.pr2a.utils.Pair;
 import es.ujaen.metaheuristicas.pr2a.utils.ReadFile;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -174,9 +175,9 @@ public class Functions {
         List<Cluster> auxCluster = new ArrayList(clusters);
         /* Inicializa el cromosoma */
         Chromosome chromosome = new Chromosome();
-        for (Pattern pattern : patterns) {
-            chromosome.add(0);
-        }
+//        for (Pattern pattern : patterns) {
+//            chromosome.add(0);
+//        }
         /* Crea un gen por cada patrón */
         while (auxCluster.size() > 0) {
 
@@ -184,13 +185,32 @@ public class Functions {
             int positionCluster = rand.nextInt(auxCluster.size());
             int positionPatternCluster = rand.nextInt(auxCluster.get(positionCluster).size());
             Pattern pattern = auxCluster.get(positionCluster).remove(positionPatternCluster);
-            int positionPattern = patterns.indexOf(pattern);
-            chromosome.set(positionPattern, positionCluster);
+//            int positionPattern = patterns.indexOf(pattern);
+            chromosome.add(pattern, positionCluster);
 
             if (auxCluster.get(positionCluster).size() == 0) {
                 auxCluster.remove(positionCluster);
             }
 
+        }
+        return chromosome;
+    }
+
+    /**
+     *
+     * @param patterns
+     * @param rand
+     * @return null
+     * @deprecated No implementada
+     */
+    public static Chromosome setChromosome(List<Pattern> patterns, Random rand, Integer numberClusters) {
+        //mirar en el excel y programar la generación de soluciones
+        List<Pattern> auxPatterns = new ArrayList(patterns);
+        Chromosome chromosome = new Chromosome();
+        while (auxPatterns.size() > 0) {
+            int pattern = rand.nextInt(auxPatterns.size());
+            int cluster = rand.nextInt(numberClusters);
+            chromosome.add(new Pair(auxPatterns.remove(pattern), cluster));
         }
         return chromosome;
     }
@@ -218,25 +238,25 @@ public class Functions {
         }
 
         // busca los elementos no comunes
-        fatherChromosome.removeAll(populationChromosomes.get(mother), lowerCut, upperCut);
-        motherChromosome.removeAll(populationChromosomes.get(father), lowerCut, upperCut);
+        fatherChromosome.removeAll(populationChromosomes.get(mother).subList(lowerCut, upperCut));
+        motherChromosome.removeAll(populationChromosomes.get(father).subList(lowerCut, upperCut));
 
         Chromosome son = new Chromosome();
         Chromosome daughter = new Chromosome();
         // crea los hijos
-        for (int i = 0; i < lowerCut; i++) {
-            son.add(motherChromosome.get(motherChromosome.size() - lowerCut + i));
-            daughter.add(fatherChromosome.get(fatherChromosome.size() - lowerCut + i));
-        }
         for (int i = lowerCut; i < upperCut; i++) {
             son.add(populationChromosomes.get(father).get(i));
             daughter.add(populationChromosomes.get(mother).get(i));
         }
-        for (int i = 0; i < fatherChromosome.size() - upperCut; i++) {
+        for (int i = 0; i < populationChromosomes.get(mother).size() - upperCut; i++) {
             son.add(motherChromosome.get(i));
             daughter.add(fatherChromosome.get(i));
         }
-        
+        for (int i = 0; i < lowerCut; i++) {
+            son.add(i, motherChromosome.get(i + populationChromosomes.get(mother).size() - upperCut));
+            daughter.add(i, fatherChromosome.get(i + populationChromosomes.get(mother).size() - upperCut));
+        }
+
         // los hijos
         List<Chromosome> children = new ArrayList();
         children.add(son);
@@ -250,22 +270,21 @@ public class Functions {
     public static void mutation() {
 
     }
-    
+
     /**
-     * 
+     *
      * @param chromosome
-     * @param patterns
      * @param numberClusters
      * @return a
      * @deprecated No terminado
      */
-    public static List<Cluster> getClusterChromosome(Chromosome chromosome, List<Pattern> patterns, Integer numberClusters){
+    public static List<Cluster> getClusterChromosome(Chromosome chromosome, Integer numberClusters) {
         List<Cluster> clusters = new ArrayList();
-        for(int i=0; i<numberClusters; i++){
+        for (int i = 0; i < numberClusters; i++) {
             clusters.add(new Cluster());
         }
-        for(int i=0; i < chromosome.size(); i++){
-            clusters.get(chromosome.get(i)).add(patterns.get(i));
+        for (int i = 0; i < chromosome.size(); i++) {
+            clusters.get(chromosome.get(i).second).add(chromosome.get(i).first);
         }
         return clusters;
     }
@@ -287,16 +306,16 @@ public class Functions {
         }
         return best;
     }
-    
+
     /**
-     * 
+     *
      * @return a
      * @deprecated No implementada.
      */
-    public static Integer positionBestDistance(List<Float> distances){
+    public static Integer positionBestDistance(List<Float> distances) {
         float best = 0;
         int position = 0;
-        for (int i=0; i<distances.size(); i++) {
+        for (int i = 0; i < distances.size(); i++) {
             if (distances.get(i) > best || best == 0) {
                 best = distances.get(i);
                 position = i;

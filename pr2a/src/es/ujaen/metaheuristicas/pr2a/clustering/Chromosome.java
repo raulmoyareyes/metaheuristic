@@ -4,6 +4,7 @@
  */
 package es.ujaen.metaheuristicas.pr2a.clustering;
 
+import es.ujaen.metaheuristicas.pr2a.utils.Pair;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -17,10 +18,10 @@ import java.util.Objects;
  *
  * @deprecated Grandes cambios, repasar entera.
  */
-public class Chromosome implements Iterable<Integer> {
+public class Chromosome implements Iterable<Pair<Pattern, Integer>> {
 
     /* Cada Pair representa un gen con un patrón y la posición del cluster al que pertenece */
-    List<Integer> gene;
+    List<Pair<Pattern, Integer>> gene;
 
     /**
      * Constructor por defecto. Inicializa los atributos.
@@ -36,7 +37,7 @@ public class Chromosome implements Iterable<Integer> {
      */
     public Chromosome(Chromosome orig) {
         this.gene = new ArrayList();
-        for (Integer p : orig) {
+        for (Pair<Pattern, Integer> p : orig) {
             this.gene.add(p);
         }
     }
@@ -47,8 +48,28 @@ public class Chromosome implements Iterable<Integer> {
      * @param cluster Cluster al que pertenece el patrón.
      * @return True si se añade correctamente.
      */
-    public boolean add(Integer cluster) {
-        return this.gene.add(cluster);
+    public boolean add(Pattern pattern, Integer cluster) {
+        return this.gene.add(new Pair(pattern, cluster));
+    }
+
+    /**
+     * 
+     * @param position
+     * @param pair
+     * @deprecated Noterminado
+     */
+    public void add(Integer position, Pair<Pattern, Integer> pair) {
+        this.gene.add(position, pair);
+    }
+
+    /**
+     *
+     * @param pair
+     * @return a
+     * @deprecated No comentado
+     */
+    public boolean add(Pair<Pattern, Integer> pair) {
+        return this.gene.add(pair);
     }
 
     /**
@@ -57,7 +78,7 @@ public class Chromosome implements Iterable<Integer> {
      * @param position Posición del gen en el cromosoma.
      * @return Pair con el patrón y la posición del cluster al que pertenece.
      */
-    public Integer get(int position) {
+    public Pair<Pattern, Integer> get(int position) {
         return this.gene.get(position);
     }
 
@@ -68,17 +89,16 @@ public class Chromosome implements Iterable<Integer> {
      * @return a
      * @deprecated No terminado.
      */
-    public Integer set(Integer position, Integer cluster) {
-        return this.gene.set(position, cluster);
-    }
-
+//    public Integer set(Integer position, Pair<Pattern, Integer> pair) {
+//        return this.gene.set(position, pair);
+//    }
     /**
      * Método para eliminar el gen de un cromosoma.
      *
      * @param position Posición del gen en el cromosoma.
      * @return Pair con el patrón y la posición del cluster al que pertenece.
      */
-    public Integer remove(int position) {
+    public Pair<Pattern, Integer> remove(int position) {
         return this.gene.remove(position);
     }
 
@@ -97,8 +117,8 @@ public class Chromosome implements Iterable<Integer> {
      * @return Iterador del List.
      */
     @Override
-    public Iterator<Integer> iterator() {
-        Iterator<Integer> ipatterns = this.gene.iterator();
+    public Iterator<Pair<Pattern, Integer>> iterator() {
+        Iterator<Pair<Pattern, Integer>> ipatterns = this.gene.iterator();
         return ipatterns;
     }
 
@@ -120,21 +140,21 @@ public class Chromosome implements Iterable<Integer> {
      * @return list
      * @deprecated No comentada
      */
-    public List<Integer> subList(int fromIndex, int toIndex) {
+    public List<Pair<Pattern, Integer>> subList(int fromIndex, int toIndex) {
         return this.gene.subList(fromIndex, toIndex);
     }
 
     /**
      *
-     * @param chromosome
-     * @param lowerCut
-     * @param upperCut
+     * @param sublits
      * @deprecated No comentada.
      */
-    public void removeAll(Chromosome chromosome, Integer lowerCut, Integer upperCut) {
-        for (int i = lowerCut; i < upperCut; i++) {
-            if(Objects.equals(get(i), chromosome.get(i))){
-                remove(i);//set(i,-1);
+    public void removeAll(List<Pair<Pattern, Integer>> sublits) {
+        for (Pair<Pattern, Integer> other : sublits) {
+            for (int i = 0; i < this.gene.size(); i++) {
+                if (this.gene.get(i).first==other.first) {
+                    this.gene.remove(i);
+                }
             }
         }
     }

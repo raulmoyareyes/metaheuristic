@@ -47,10 +47,15 @@ public class AGE {
 
         /* Crea 50 soluciones y las almacena para trabajar con ellas */
         for (int i = 0; i < population; i++) {
-            populationClusters.add(Functions.setRandom(patterns, rand, numberClusters));
+//            populationClusters.add(Functions.setRandom(patterns, rand, numberClusters));
+//            populationCentroids.add(Functions.calculateCentroids(populationClusters.get(i)));
+//            populationDistances.add(Functions.objectiveFunction(populationClusters.get(i), populationCentroids.get(i)));
+//            populationChromosomes.add(Functions.setChromosome(populationClusters.get(i), patterns, rand));
+            populationChromosomes.add(Functions.setChromosome(patterns, rand, numberClusters));
+            populationClusters.add(Functions.getClusterChromosome(populationChromosomes.get(i), numberClusters));
             populationCentroids.add(Functions.calculateCentroids(populationClusters.get(i)));
             populationDistances.add(Functions.objectiveFunction(populationClusters.get(i), populationCentroids.get(i)));
-            populationChromosomes.add(Functions.setChromosome(populationClusters.get(i), patterns, rand));
+
         }
 
         /* Mejor solución inicial */
@@ -110,16 +115,17 @@ public class AGE {
 //            for(Chromosome c : children){
 //                
 //            }
-            List<Cluster> childrenClusters = Functions.getClusterChromosome(children.get(0), patterns, numberClusters);
-            List<Pattern> childrenCentroid = Functions.calculateCentroids(childrenClusters);
-            Float cost = Functions.objectiveFunction(childrenClusters, childrenCentroid);
-
-            if (cost < populationDistances.get(father)) {
-                populationChromosomes.set(father, children.get(0));
-                populationCentroids.set(father, childrenCentroid);
-                populationClusters.set(father, childrenClusters);
-                populationDistances.set(father, cost);
-            }
+//            List<Cluster> childrenClusters = Functions.getClusterChromosome(children.get(0), numberClusters);
+//            List<Pattern> childrenCentroid = Functions.calculateCentroids(childrenClusters);
+//            Float cost = Functions.objectiveFunction(childrenClusters, childrenCentroid);
+//
+//            if (cost < populationDistances.get(father)) {
+//                populationChromosomes.set(father, children.get(0));
+//                populationCentroids.set(father, childrenCentroid);
+//                populationClusters.set(father, childrenClusters);
+//                populationDistances.set(father, cost);
+//            }
+//            System.out.println(i);
 
         }
 

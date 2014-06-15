@@ -101,8 +101,8 @@ public class Pattern implements Iterable<Float> {
      * @return a
      * @deprecated No terminado
      */
-    public boolean equals(Pattern other) {
-        return this.datas.containsAll(other.get());
-    }
+//    public boolean equals(Pattern other) {
+//        return this.datas.containsAll(other.get());
+//    }
 
 }
