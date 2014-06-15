@@ -102,7 +102,7 @@ public class AGE {
             /* Probabilidad de cruce es 1 por tanto siempre cruza */
             float probability = rand.nextFloat();
             if (probability < crossingProbability) {
-                children = Functions.crossing(populationClusters, populationChromosomes, father, mother, rand);
+                children = Functions.crossing(populationChromosomes, father, mother, rand);
             }
             /* Probabilidad de mutación es 0.01 */
             // parece que hay que mutar un número de veces 
@@ -115,16 +115,16 @@ public class AGE {
 //            for(Chromosome c : children){
 //                
 //            }
-//            List<Cluster> childrenClusters = Functions.getClusterChromosome(children.get(0), numberClusters);
-//            List<Pattern> childrenCentroid = Functions.calculateCentroids(childrenClusters);
-//            Float cost = Functions.objectiveFunction(childrenClusters, childrenCentroid);
-//
-//            if (cost < populationDistances.get(father)) {
-//                populationChromosomes.set(father, children.get(0));
-//                populationCentroids.set(father, childrenCentroid);
-//                populationClusters.set(father, childrenClusters);
-//                populationDistances.set(father, cost);
-//            }
+            List<Cluster> childrenClusters = Functions.getClusterChromosome(children.get(0), numberClusters);
+            List<Pattern> childrenCentroid = Functions.calculateCentroids(childrenClusters);
+            Float cost = Functions.objectiveFunction(childrenClusters, childrenCentroid);
+
+            if (cost < populationDistances.get(father)) {
+                populationChromosomes.set(father, children.get(0));
+                populationCentroids.set(father, childrenCentroid);
+                populationClusters.set(father, childrenClusters);
+                populationDistances.set(father, cost);
+            }
 //            System.out.println(i);
 
         }

@@ -218,7 +218,7 @@ public class Functions {
     /**
      * @deprecated Falta comentar, comprobar que
      */
-    public static List<Chromosome> crossing(List<List<Cluster>> populationClusters, List<Chromosome> populationChromosomes, Integer father, Integer mother, Random rand) {
+    public static List<Chromosome> crossing(List<Chromosome> populationChromosomes, Integer father, Integer mother, Random rand) {
 
         // cromosoma padre y madre
         Chromosome fatherChromosome = new Chromosome(populationChromosomes.get(father)); //realizar copias y no usar referencias
@@ -238,12 +238,14 @@ public class Functions {
         }
 
         // busca los elementos no comunes
-        fatherChromosome.removeAll(populationChromosomes.get(mother).subList(lowerCut, upperCut));
-        motherChromosome.removeAll(populationChromosomes.get(father).subList(lowerCut, upperCut));
+        List<Pair<Pattern,Integer>> motherSubList = populationChromosomes.get(mother).subList(lowerCut, upperCut);
+        fatherChromosome.removeAll(motherSubList); // 30 segundos en hacer este método
+        List<Pair<Pattern,Integer>> fatherSubList = populationChromosomes.get(father).subList(lowerCut, upperCut);
+        motherChromosome.removeAll(fatherSubList);
 
         Chromosome son = new Chromosome();
         Chromosome daughter = new Chromosome();
-        // crea los hijos
+//        // crea los hijos
         for (int i = lowerCut; i < upperCut; i++) {
             son.add(populationChromosomes.get(father).get(i));
             daughter.add(populationChromosomes.get(mother).get(i));

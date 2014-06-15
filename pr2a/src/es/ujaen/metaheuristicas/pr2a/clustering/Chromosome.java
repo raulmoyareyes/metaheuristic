@@ -150,12 +150,13 @@ public class Chromosome implements Iterable<Pair<Pattern, Integer>> {
      * @deprecated No comentada.
      */
     public void removeAll(List<Pair<Pattern, Integer>> sublits) {
-        for (Pair<Pattern, Integer> other : sublits) {
-            for (int i = 0; i < this.gene.size(); i++) {
-                if (this.gene.get(i).first==other.first) {
-                    this.gene.remove(i);
-                }
-            }
-        }
+//        for (Pair<Pattern, Integer> other : sublits) {
+//            for (int i = 0; i < this.gene.size(); i++) {
+//                if (this.gene.get(i).first==other.first) {
+//                    this.gene.remove(i);
+//                }
+//            }
+//        }
+        this.gene.removeAll(sublits);
     }
 }
