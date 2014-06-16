@@ -306,8 +306,15 @@ public class Functions {
     /**
      * @deprecated No implementado
      */
-    public static void mutation() {
+    public static List<Chromosome> mutation(List<Chromosome> children, Random rand, Integer numberCluster) {
 
+        int chromosome = rand.nextInt(children.size());
+        int gen = rand.nextInt(children.get(chromosome).size());
+        int cluster = rand.nextInt(numberCluster);
+
+        children.get(chromosome).get(gen).second = cluster;
+
+        return children;
     }
 
     /**

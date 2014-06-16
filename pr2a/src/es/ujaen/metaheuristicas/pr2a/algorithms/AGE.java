@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * Algoritmo Genético (variante generacional estacionaria),
+ * Algoritmo Genético (variante generacional estacionaria).
  *
  * @author Raúl Moya Reyes <www.raulmoya.es>
  */
@@ -88,6 +88,7 @@ public class AGE {
 
 //        float crossingProbability = 1;
         float mutationProbability = (float) 0.01;
+        int temporalPopulation = 2;
 
         for (int i = 0; i < 10000; i++) {
             /* Selecciona dos padres aleatorios */
@@ -101,14 +102,18 @@ public class AGE {
             /* Probabilidad de cruce es 1 por tanto siempre cruza */
             children = Functions.crossing(populationChromosomes, father, mother, rand);
             /* Probabilidad de mutación es 0.01 */
-            //mutar
-            for (Chromosome children1 : children) {
-                List<Cluster> childrenClusters = Functions.getClusterChromosome(children1, numberClusters);
+            int numberMutatitions = (int) (temporalPopulation * populationChromosomes.size() * mutationProbability);
+            for (int j = 0; j < numberMutatitions; j++) {
+                children = Functions.mutation(children, rand, numberClusters);
+            }
+            /* Sustituye cada hijo por el peor de la población */
+            for (Chromosome child : children) {
+                List<Cluster> childrenClusters = Functions.getClusterChromosome(child, numberClusters);
                 List<Pattern> childrenCentroid = Functions.calculateCentroids(childrenClusters);
                 Float cost = Functions.objectiveFunction(childrenClusters, childrenCentroid);
-                int worst=Functions.positionWorst(populationDistances);
+                int worst = Functions.positionWorst(populationDistances);
                 if (cost < populationDistances.get(worst)) {
-                    populationChromosomes.set(worst, children1);
+                    populationChromosomes.set(worst, child);
                     populationCentroids.set(worst, childrenCentroid);
                     populationClusters.set(worst, childrenClusters);
                     populationDistances.set(worst, cost);
