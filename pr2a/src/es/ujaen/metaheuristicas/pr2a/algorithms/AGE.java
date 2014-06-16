@@ -47,15 +47,10 @@ public class AGE {
 
         /* Crea 50 soluciones y las almacena para trabajar con ellas */
         for (int i = 0; i < population; i++) {
-//            populationClusters.add(Functions.setRandom(patterns, rand, numberClusters));
-//            populationCentroids.add(Functions.calculateCentroids(populationClusters.get(i)));
-//            populationDistances.add(Functions.objectiveFunction(populationClusters.get(i), populationCentroids.get(i)));
-//            populationChromosomes.add(Functions.setChromosome(populationClusters.get(i), patterns, rand));
-            populationChromosomes.add(Functions.setChromosome(patterns, rand, numberClusters));
-            populationClusters.add(Functions.getClusterChromosome(populationChromosomes.get(i), numberClusters));
+            populationClusters.add(Functions.setInitial(patterns, rand, numberClusters));
             populationCentroids.add(Functions.calculateCentroids(populationClusters.get(i)));
             populationDistances.add(Functions.objectiveFunction(populationClusters.get(i), populationCentroids.get(i)));
-
+            populationChromosomes.add(Functions.setChromosome(populationClusters.get(i), patterns, rand));
         }
 
         /* Mejor solución inicial */
@@ -91,44 +86,36 @@ public class AGE {
     public static Integer run(List<List<Cluster>> populationClusters, List<List<Pattern>> populationCentroids,
             List<Float> populationDistances, List<Chromosome> populationChromosomes, List<Pattern> patterns, Integer numberClusters, Random rand) {
 
-        float crossingProbability = 1;
+//        float crossingProbability = 1;
         float mutationProbability = (float) 0.01;
 
         for (int i = 0; i < 10000; i++) {
             /* Selecciona dos padres aleatorios */
-            int father = rand.nextInt(populationChromosomes.size());
-            int mother = rand.nextInt(populationChromosomes.size());
+            int father = Functions.selected(populationDistances, rand);
+            int mother = Functions.selected(populationDistances, rand);
+            while (father == mother) {
+                mother = Functions.selected(populationDistances, rand);
+            }
+
             List<Chromosome> children = new ArrayList();
             /* Probabilidad de cruce es 1 por tanto siempre cruza */
-            float probability = rand.nextFloat();
-            if (probability < crossingProbability) {
-                children = Functions.crossing(populationChromosomes, father, mother, rand);
-            }
+            children = Functions.crossing(populationChromosomes, father, mother, rand);
             /* Probabilidad de mutación es 0.01 */
-            // parece que hay que mutar un número de veces 
-            probability = rand.nextFloat();
-            if (probability > mutationProbability) {
-                Functions.mutation();
+            //mutar
+            for (Chromosome children1 : children) {
+                List<Cluster> childrenClusters = Functions.getClusterChromosome(children1, numberClusters);
+                List<Pattern> childrenCentroid = Functions.calculateCentroids(childrenClusters);
+                Float cost = Functions.objectiveFunction(childrenClusters, childrenCentroid);
+                int worst=Functions.positionWorst(populationDistances);
+                if (cost < populationDistances.get(worst)) {
+                    populationChromosomes.set(worst, children1);
+                    populationCentroids.set(worst, childrenCentroid);
+                    populationClusters.set(worst, childrenClusters);
+                    populationDistances.set(worst, cost);
+                }
             }
-
-            // comprobar si son mejores.
-//            for(Chromosome c : children){
-//                
-//            }
-            List<Cluster> childrenClusters = Functions.getClusterChromosome(children.get(0), numberClusters);
-            List<Pattern> childrenCentroid = Functions.calculateCentroids(childrenClusters);
-            Float cost = Functions.objectiveFunction(childrenClusters, childrenCentroid);
-
-            if (cost < populationDistances.get(father)) {
-                populationChromosomes.set(father, children.get(0));
-                populationCentroids.set(father, childrenCentroid);
-                populationClusters.set(father, childrenClusters);
-                populationDistances.set(father, cost);
-            }
-//            System.out.println(i);
-
         }
 
-        return 0;
+        return Functions.positionBest(populationDistances);
     }
 }

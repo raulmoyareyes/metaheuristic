@@ -136,26 +136,43 @@ public class Functions {
     }
 
     /**
-     * Método para asignar los patrones a los clusters de forma aleatoria.
      *
      * @param patterns Todos los patrones para asignarlos a los clusters.
      * @param rand Números aleatorios a partir de una semilla.
-     * @param numberClusters Número de clusters que se van a crear.
+     * @param numberClusters Número de clusters a generar.
      * @return List de {@link Cluster} con todos los patrones asignados.
+     * @deprecated
      */
-    public static List<Cluster> setRandom(List<Pattern> patterns, Random rand, Integer numberClusters) {
-        /* ArrayList para asignar todos los patrones a los clusters */
-        List<Cluster> clusters = new ArrayList();
-        /* Inicialización del número de cluster */
+    public static List<Cluster> setInitial(List<Pattern> patterns, Random rand, Integer numberClusters) {
+        /* Crea una copia de la lista de patrones */
+        List<Pattern> restPattern = new ArrayList(patterns);
+        /* Inicializa los clusters y los centroides */
+        List<Cluster> clusters = new ArrayList<>();
+        List<Pattern> centroids = new ArrayList<>();
+
+        /* Calcula el centroide de cada cluster */
         for (int i = 0; i < numberClusters; i++) {
+            int positionCandidate = rand.nextInt(restPattern.size());
+            /* Asigna el patrón a un cluster */
+            Pattern candidate = restPattern.remove(positionCandidate);
             clusters.add(new Cluster());
+            clusters.get(i).add(candidate);
+            centroids.add(i, candidate);
         }
-        /* Asignación de patrones a los clusters */
-        for (Pattern p : patterns) {
-            /* Número aleatorio entre 0 y número de clusters (no incluido) */
-            int position = rand.nextInt(numberClusters);
-            /* Asignación del patrón p al cluster en la posicion indicada */
-            clusters.get(position).add(p);
+
+        /* Asigna el resto de patrones al cluster que menos distancia tenga */
+        for (int j = 0; j < restPattern.size(); j++) {
+            float distance = 0;
+            int assigned = 0;
+            for (int i = 0; i < centroids.size(); i++) {
+                float actualDistance = distance(centroids.get(i), restPattern.get(j));
+                if (actualDistance < distance || distance == 0) {
+                    distance = actualDistance;
+                    assigned = i;
+                }
+            }
+            clusters.get(assigned).add(restPattern.remove(j));
+            j--;
         }
 
         return clusters;
@@ -238,9 +255,9 @@ public class Functions {
         }
 
         // busca los elementos no comunes
-        List<Pair<Pattern,Integer>> motherSubList = populationChromosomes.get(mother).subList(lowerCut, upperCut);
+        List<Pair<Pattern, Integer>> motherSubList = populationChromosomes.get(mother).subList(lowerCut, upperCut);
         fatherChromosome.removeAll(motherSubList); // 30 segundos en hacer este método
-        List<Pair<Pattern,Integer>> fatherSubList = populationChromosomes.get(father).subList(lowerCut, upperCut);
+        List<Pair<Pattern, Integer>> fatherSubList = populationChromosomes.get(father).subList(lowerCut, upperCut);
         motherChromosome.removeAll(fatherSubList);
 
         Chromosome son = new Chromosome();
@@ -267,10 +284,60 @@ public class Functions {
     }
 
     /**
+     *
+     * @param populationDistances
+     * @param rand
+     * @deprecated
+     */
+    public static Integer selected(List<Float> populationDistances, Random rand) {
+        int father = rand.nextInt(populationDistances.size());
+        int aux = father;
+        do {
+            aux = rand.nextInt(populationDistances.size());
+        } while (father == aux);
+
+        if (populationDistances.get(aux) < populationDistances.get(father)) {
+            father = aux;
+        }
+
+        return father;
+    }
+
+    /**
      * @deprecated No implementado
      */
     public static void mutation() {
 
+    }
+
+    /**
+     * @deprecated
+     */
+    public static Integer positionBest(List<Float> populationDistances) {
+        float distance = 0;
+        int best = 0;
+        for (int i = 0; i < populationDistances.size(); i++) {
+            if (populationDistances.get(i) < distance || distance == 0) {
+                distance = populationDistances.get(i);
+                best = i;
+            }
+        }
+        return best;
+    }
+
+    /**
+     * @deprecated
+     */
+    public static Integer positionWorst(List<Float> populationDistances) {
+        float distance = 0;
+        int worst = 0;
+        for (int i = 0; i < populationDistances.size(); i++) {
+            if (populationDistances.get(i) > distance || distance == 0) {
+                distance = populationDistances.get(i);
+                worst = i;
+            }
+        }
+        return worst;
     }
 
     /**
@@ -397,4 +464,5 @@ public class Functions {
         System.out.println("\n");
 
     }
+
 }
