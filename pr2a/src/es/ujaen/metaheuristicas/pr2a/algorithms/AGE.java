@@ -19,14 +19,13 @@ import java.util.Random;
 public class AGE {
 
     /**
-     * Método para
+     * Método para lanzar el algoritmo genético con solución inicial.
      *
-     * @param fileName
-     * @param seed
-     * @param numberClusters
-     * @param population
-     * @return Float
-     * @deprecated
+     * @param fileName Nombre del archivo para realizar la carga de datos.
+     * @param seed Semilla a utilizar para la generación de números aleatorios.
+     * @param numberClusters Número de clusters a generar.
+     * @param population Tamaño de la población.
+     * @return Float con el coste de la solución.
      */
     public static Float init(String fileName, Integer seed, Integer numberClusters, Integer population) {
         /* Conjunto de todos los patrones */
@@ -57,7 +56,7 @@ public class AGE {
         float initialCost = Functions.bestDistance(populationDistances);
 
         /* Posición de la mejor solución */
-        int positionBetter = run(populationClusters, populationCentroids, populationDistances, populationChromosomes, patterns, numberClusters, rand);
+        int positionBetter = run(populationClusters, populationCentroids, populationDistances, populationChromosomes, numberClusters, rand);
 
         /* Coste de la solución final */
         float cost = populationDistances.get(positionBetter);
@@ -72,24 +71,25 @@ public class AGE {
     }
 
     /**
+     * Método con el algoritmo genético sin utilizar ningún método de solución
+     * inicial.
      *
-     * @param populationClusters
-     * @param populationCentroids
-     * @param populationDistances
-     * @param populationChromosomes
-     * @param patterns
-     * @param numberClusters
-     * @param rand
-     * @return int
-     * @deprecated No comentado y sin terminar de implementar
+     * @param populationClusters Población de distintas soluciones de clusters.
+     * @param populationCentroids Población de centroides de cada cluster.
+     * @param populationDistances Población de costes de cada solución.
+     * @param populationChromosomes Población de cada cromosoma
+     * @param numberClusters Número de clusters a generar.
+     * @param rand Random con la semilla utilizada.
+     * @return Integer con la posición de la mejor solución de la población.
      */
     public static Integer run(List<List<Cluster>> populationClusters, List<List<Pattern>> populationCentroids,
-            List<Float> populationDistances, List<Chromosome> populationChromosomes, List<Pattern> patterns, Integer numberClusters, Random rand) {
+            List<Float> populationDistances, List<Chromosome> populationChromosomes, Integer numberClusters, Random rand) {
 
 //        float crossingProbability = 1;
         float mutationProbability = (float) 0.01;
         int temporalPopulation = 2;
 
+        /* Repite hasta que supere el número de iteraciones */
         for (int i = 0; i < 10000; i++) {
             /* Selecciona dos padres aleatorios */
             int father = Functions.selected(populationDistances, rand);
@@ -106,7 +106,7 @@ public class AGE {
             for (int j = 0; j < numberMutatitions; j++) {
                 children = Functions.mutation(children, rand, numberClusters);
             }
-            /* Sustituye cada hijo por el peor de la población */
+            /* Sustituye cada hijo por el peor de la población si lo mejora */
             for (Chromosome child : children) {
                 List<Cluster> childrenClusters = Functions.getClusterChromosome(child, numberClusters);
                 List<Pattern> childrenCentroid = Functions.calculateCentroids(childrenClusters);

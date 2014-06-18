@@ -136,12 +136,12 @@ public class Functions {
     }
 
     /**
+     * Método para obtener una solución inicial.
      *
      * @param patterns Todos los patrones para asignarlos a los clusters.
      * @param rand Números aleatorios a partir de una semilla.
      * @param numberClusters Número de clusters a generar.
      * @return List de {@link Cluster} con todos los patrones asignados.
-     * @deprecated
      */
     public static List<Cluster> setInitial(List<Pattern> patterns, Random rand, Integer numberClusters) {
         /* Crea una copia de la lista de patrones */
@@ -284,10 +284,12 @@ public class Functions {
     }
 
     /**
+     * Método para seleccionar un cromosoma de la población.
      *
-     * @param populationDistances
-     * @param rand
-     * @deprecated
+     * @param populationDistances Coste de cada cromosoma para elegir el mejor
+     * de los aleatorios.
+     * @param rand Números aleatorios a partir de la semilla.
+     * @return Posición del gen en el cromosoma.
      */
     public static Integer selected(List<Float> populationDistances, Random rand) {
         int father = rand.nextInt(populationDistances.size());
@@ -304,21 +306,30 @@ public class Functions {
     }
 
     /**
-     * @deprecated No implementado
+     * Método para realizar la mutación de un gen.
+     *
+     * @param children Cromosoma a mutar.
+     * @param rand Números aleatorios con la semilla.
+     * @param numberCluster Número de clusters que tiene la solución.
+     * @return Cromosoma mutado.
      */
     public static List<Chromosome> mutation(List<Chromosome> children, Random rand, Integer numberCluster) {
 
         int chromosome = rand.nextInt(children.size());
         int gen = rand.nextInt(children.get(chromosome).size());
         int cluster = rand.nextInt(numberCluster);
-
+        /* Cambio del cluster */
         children.get(chromosome).get(gen).second = cluster;
 
         return children;
     }
 
     /**
-     * @deprecated
+     * Método para calcular la posición del mejor coste.
+     *
+     * @param populationDistances List de costes de cada solución de la
+     * población.
+     * @return Posición del mejor coste.
      */
     public static Integer positionBest(List<Float> populationDistances) {
         float distance = 0;
@@ -333,7 +344,11 @@ public class Functions {
     }
 
     /**
-     * @deprecated
+     * Método para calcular la posición del peor coste.
+     *
+     * @param populationDistances List de costes de cada solución de la
+     * población.
+     * @return Posición del peor coste.
      */
     public static Integer positionWorst(List<Float> populationDistances) {
         float distance = 0;

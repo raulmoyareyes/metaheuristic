@@ -8,15 +8,12 @@ import es.ujaen.metaheuristicas.pr2a.utils.Pair;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Clase para gestionar Chromosomas. Son listas de pares con patrones y el
  * cluster al que pertenecen.
  *
  * @author Raúl Moya Reyes <www.raulmoya.es>
- *
- * @deprecated Grandes cambios, repasar entera.
  */
 public class Chromosome implements Iterable<Pair<Pattern, Integer>> {
 
@@ -31,9 +28,9 @@ public class Chromosome implements Iterable<Pair<Pattern, Integer>> {
     }
 
     /**
+     * Constructor de copia.
      *
-     * @param orig
-     * @deprecated No terminado
+     * @param orig Cromosoma para realizar la copia.
      */
     public Chromosome(Chromosome orig) {
         this.gene = new ArrayList();
@@ -45,6 +42,7 @@ public class Chromosome implements Iterable<Pair<Pattern, Integer>> {
     /**
      * Método para añadir un nuevo gen al cromosoma.
      *
+     * @param pattern Patrón para asignar en esa posició.
      * @param cluster Cluster al que pertenece el patrón.
      * @return True si se añade correctamente.
      */
@@ -53,20 +51,21 @@ public class Chromosome implements Iterable<Pair<Pattern, Integer>> {
     }
 
     /**
-     * 
-     * @param position
-     * @param pair
-     * @deprecated Noterminado
+     * Método para añadir un nuevo gen en una posición concreta.
+     *
+     * @param position Posición en la que añadir el gen.
+     * @param pair Gen a insertar en la posición indicada.
      */
     public void add(Integer position, Pair<Pattern, Integer> pair) {
         this.gene.add(position, pair);
     }
 
     /**
+     * Método para añadir un nuevo gen al cromosoma.
      *
-     * @param pair
-     * @return a
-     * @deprecated No comentado
+     * @param pair Pair que incluye el patrón y el cluster al que pertenece en
+     * el cromosoma.
+     * @return True si se añade correctamente.
      */
     public boolean add(Pair<Pattern, Integer> pair) {
         return this.gene.add(pair);
@@ -82,16 +81,6 @@ public class Chromosome implements Iterable<Pair<Pattern, Integer>> {
         return this.gene.get(position);
     }
 
-    /**
-     *
-     * @param position
-     * @param cluster
-     * @return a
-     * @deprecated No terminado.
-     */
-//    public Integer set(Integer position, Pair<Pattern, Integer> pair) {
-//        return this.gene.set(position, pair);
-//    }
     /**
      * Método para eliminar el gen de un cromosoma.
      *
@@ -133,30 +122,22 @@ public class Chromosome implements Iterable<Pair<Pattern, Integer>> {
     }
 
     /**
-     * Método para
+     * Método para obtener una sublista entre dos posiciones.
      *
-     * @param fromIndex
-     * @param toIndex
-     * @return list
-     * @deprecated No comentada
+     * @param fromIndex Indice desde el que obtener la sublista.
+     * @param toIndex Indice hasta el que obtener la sublista.
+     * @return List con los genes entre los dos incides.
      */
     public List<Pair<Pattern, Integer>> subList(int fromIndex, int toIndex) {
         return this.gene.subList(fromIndex, toIndex);
     }
 
     /**
+     * Método para eliminar los genes contenidos en la sublista.
      *
-     * @param sublits
-     * @deprecated No comentada.
+     * @param sublits Lista de genes para eliminarlos.
      */
     public void removeAll(List<Pair<Pattern, Integer>> sublits) {
-//        for (Pair<Pattern, Integer> other : sublits) {
-//            for (int i = 0; i < this.gene.size(); i++) {
-//                if (this.gene.get(i).first==other.first) {
-//                    this.gene.remove(i);
-//                }
-//            }
-//        }
         this.gene.removeAll(sublits);
     }
 }
