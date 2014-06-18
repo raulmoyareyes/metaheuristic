@@ -179,22 +179,18 @@ public class Functions {
     }
 
     /**
-     * Método para crear un cromosoma a partir de una lista de clusters
+     * Método para crear un cromosoma a partir de una lista de clusters.
      *
      * @param clusters List de {@link Cluster} con todos los patrones asignados.
      * @param patterns
      * @param rand Números aleatorios a partir de una semilla.
      * @return Chromoseme generado a partir de los clusters.
-     * @deprecated comentar y probar.
      */
     public static Chromosome setChromosome(List<Cluster> clusters, List<Pattern> patterns, Random rand) {
-        // copia de clusters
+        /* Copia auxiliar de los clusters */
         List<Cluster> auxCluster = new ArrayList(clusters);
         /* Inicializa el cromosoma */
         Chromosome chromosome = new Chromosome();
-//        for (Pattern pattern : patterns) {
-//            chromosome.add(0);
-//        }
         /* Crea un gen por cada patrón */
         while (auxCluster.size() > 0) {
 
