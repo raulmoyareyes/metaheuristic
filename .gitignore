@@ -19,4 +19,8 @@ hs_err_pid*
 /pr1/dist/
 
 /pr2a/build/
-/pr1/dist/
+/pr2a/dist/
+
+/pr3/build/
+/pr3/dist/
+
