@@ -17,7 +17,7 @@ import java.util.Random;
 public class BL {
 
     /**
-     * Método para lanzar el algorimo de búsqueda local con solución inicial
+     * Método para lanzar el algoritmo de búsqueda local con solución inicial
      * aleatoria.
      *
      * @param fileName Nombre del archivo para realizar la carga de datos.
