@@ -107,25 +107,21 @@ public class BT {
             for (int j = 0; j < solutionsGenerated; j++) {
                 /* Recorre cada cluster */
                 for (int k = 0; k < clusters.size(); k++) {
-                    float probability = rand.nextFloat();
-                    /* Probabilidad de asignar el patrón al cluster */
-                    if (probability < probabilityCluster) {
-                        int assigned;
-                        do {
-                            assigned = rand.nextInt(clusters.size());
-                        } while (assigned == k);
-                        /* Posición aleatoria de un patrón para intercambiar */
-                        int patternPosition = rand.nextInt(clusters.get(k).size());
-                        /* Mejora del coste tras el intercambio */
-                        float actualCost = Functions.factorize(clusters, centroids, assigned, k, patternPosition);
-                        /* Almacena el movimiento */
-                        Pair<Integer, Integer> actualMove = new Pair(patternPosition, assigned);
-                        /* Almacena el mejor coste y el mejor movimiento si no está en la lista tabú */
-                        if ((actualCost < best) && !tabuList.contains(actualMove)) {
-                            best = actualCost;
-                            bestMove = actualMove;
-                            cluster = k;
-                        }
+                    int assigned;
+                    do {
+                        assigned = rand.nextInt(clusters.size());
+                    } while (assigned == k);
+                    /* Posición aleatoria de un patrón para intercambiar */
+                    int patternPosition = rand.nextInt(clusters.get(k).size());
+                    /* Mejora del coste tras el intercambio */
+                    float actualCost = Functions.factorize(clusters, centroids, assigned, k, patternPosition);
+                    /* Almacena el movimiento */
+                    Pair<Integer, Integer> actualMove = new Pair(patternPosition, assigned);
+                    /* Almacena el mejor coste y el mejor movimiento si no está en la lista tabú */
+                    if ((actualCost < best) && !tabuList.contains(actualMove)) {
+                        best = actualCost;
+                        bestMove = actualMove;
+                        cluster = k;
                     }
                 }
             }
