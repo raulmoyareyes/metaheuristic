@@ -14,5 +14,9 @@ hs_err_pid*
 /pr2a/nbproject/private/
 /pr2b/nbproject/private/
 /pr3/nbproject/private/
+
 /pr1/build/
+/pr1/dist/
+
+/pr2a/build/
 /pr1/dist/
