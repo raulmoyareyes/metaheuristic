@@ -45,7 +45,7 @@ public class AGG {
         List<Chromosome> populationChromosomes = new ArrayList();
 
         /* Crea 50 soluciones y las almacena para trabajar con ellas */
-        for (int i = 0; i < patterns.size(); i++) {
+        for (int i = 0; i < population; i++) {
             populationClusters.add(Functions.setInitial(patterns, rand, numberClusters));
             populationCentroids.add(Functions.calculateCentroids(populationClusters.get(i)));
             populationDistances.add(Functions.objectiveFunction(populationClusters.get(i), populationCentroids.get(i)));
