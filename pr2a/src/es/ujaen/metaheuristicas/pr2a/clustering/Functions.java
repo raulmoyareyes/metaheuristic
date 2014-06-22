@@ -210,38 +210,25 @@ public class Functions {
     }
 
     /**
+     * Método para realizar el cruce de dos chromosomas y generar dos hijos.
      *
-     * @param patterns
-     * @param rand
-     * @return null
-     * @deprecated No implementada
-     */
-    public static Chromosome setChromosome(List<Pattern> patterns, Random rand, Integer numberClusters) {
-        //mirar en el excel y programar la generación de soluciones
-        List<Pattern> auxPatterns = new ArrayList(patterns);
-        Chromosome chromosome = new Chromosome();
-        while (auxPatterns.size() > 0) {
-            int pattern = rand.nextInt(auxPatterns.size());
-            int cluster = rand.nextInt(numberClusters);
-            chromosome.add(new Pair(auxPatterns.remove(pattern), cluster));
-        }
-        return chromosome;
-    }
-
-    /**
-     * @deprecated Falta comentar, comprobar que
+     * @param populationChromosomes Población con todos los cromosomas.
+     * @param father Posición del padre en el list de cromosomas.
+     * @param mother Posición de la madre en el list de cromosomas.
+     * @param rand Números aleatorios generados a partir de una semilla.
+     * @return List de cromosomas con los hijos generados.
      */
     public static List<Chromosome> crossing(List<Chromosome> populationChromosomes, Integer father, Integer mother, Random rand) {
 
-        // cromosoma padre y madre
-        Chromosome fatherChromosome = new Chromosome(populationChromosomes.get(father)); //realizar copias y no usar referencias
+        /* Cromosomas padre y madre */
+        Chromosome fatherChromosome = new Chromosome(populationChromosomes.get(father));
         Chromosome motherChromosome = new Chromosome(populationChromosomes.get(mother));
 
-        // cortes
+        /* Definición de la posición de los cortes */
         int upperCut = rand.nextInt(fatherChromosome.size());
         int lowerCut = rand.nextInt(fatherChromosome.size());
 
-        // comprobamos si upper es mayor que lower o igual
+        /* Comprueba si el corto inferior es menor al corte superior */
         if (upperCut == lowerCut) {
             upperCut++;
         } else if (upperCut < lowerCut) {
@@ -250,15 +237,15 @@ public class Functions {
             lowerCut = aux;
         }
 
-        // busca los elementos no comunes
+        /* Elimina los elementos comunes en el corte */
         List<Pair<Pattern, Integer>> motherSubList = populationChromosomes.get(mother).subList(lowerCut, upperCut);
-        fatherChromosome.removeAll(motherSubList); // 30 segundos en hacer este método
+        fatherChromosome.removeAll(motherSubList);
         List<Pair<Pattern, Integer>> fatherSubList = populationChromosomes.get(father).subList(lowerCut, upperCut);
         motherChromosome.removeAll(fatherSubList);
 
         Chromosome son = new Chromosome();
         Chromosome daughter = new Chromosome();
-//        // crea los hijos
+        /* Crea los nuevos hijos */
         for (int i = lowerCut; i < upperCut; i++) {
             son.add(populationChromosomes.get(father).get(i));
             daughter.add(populationChromosomes.get(mother).get(i));
@@ -272,7 +259,7 @@ public class Functions {
             daughter.add(i, fatherChromosome.get(i + populationChromosomes.get(mother).size() - upperCut));
         }
 
-        // los hijos
+        /* Devuelve los hijos generados en el cruce */
         List<Chromosome> children = new ArrayList();
         children.add(son);
         children.add(daughter);
@@ -359,11 +346,11 @@ public class Functions {
     }
 
     /**
+     * Método para generar clusters a partir de cromosomas.
      *
-     * @param chromosome
-     * @param numberClusters
-     * @return a
-     * @deprecated No terminado
+     * @param chromosome Chromosoma del que generar el cluster.
+     * @param numberClusters Número de cluster a generar.
+     * @return List de clusters generados.
      */
     public static List<Cluster> getClusterChromosome(Chromosome chromosome, Integer numberClusters) {
         List<Cluster> clusters = new ArrayList();
@@ -395,15 +382,16 @@ public class Functions {
     }
 
     /**
+     * Método para obtener la posición del la mejor solución.
      *
-     * @return a
-     * @deprecated No implementada.
+     * @param distances List de costes de cada solución.
+     * @return Posición del menor coste.
      */
     public static Integer positionBestDistance(List<Float> distances) {
         float best = 0;
         int position = 0;
         for (int i = 0; i < distances.size(); i++) {
-            if (distances.get(i) > best || best == 0) {
+            if (distances.get(i) < best || best == 0) {
                 best = distances.get(i);
                 position = i;
             }
