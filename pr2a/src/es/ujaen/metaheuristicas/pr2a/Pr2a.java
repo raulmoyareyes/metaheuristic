@@ -32,28 +32,28 @@ public class Pr2a {
 
         switch (dataset) {
             case 1:
-                run("breast.txt", seeds, 2, algorithm);
+                run("breast.txt", 699, seeds, 2, algorithm);
                 break;
             case 2:
-                run("R15.txt", seeds, 15, algorithm);
+                run("R15.txt", 600, seeds, 15, algorithm);
                 break;
             case 3:
-                run("yeast.txt", seeds, 10, algorithm);
+                run("yeast.txt", 1484, seeds, 10, algorithm);
                 break;
         }
 
     }
 
-    private static Float run(String fileName, List<Integer> seeds, Integer numberClusters, Integer algorithm) {
+    private static Float run(String fileName, Integer size, List<Integer> seeds, Integer numberClusters, Integer algorithm) {
 
         float finalCost = 0;
         for (Integer seed : seeds) {
             switch (algorithm) {
                 case 1:
-                    finalCost = AGE.init(fileName, seed, numberClusters, 50);
+                    finalCost = AGE.init(fileName, size, seed, numberClusters, 50);
                     break;
                 case 2:
-                    finalCost = AGG.init(fileName, seed, numberClusters, 50);
+                    finalCost = AGG.init(fileName, size, seed, numberClusters, 50);
                     break;
             }
         }

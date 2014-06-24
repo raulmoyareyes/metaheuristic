@@ -1,15 +1,5 @@
-/**
- * En este paquete se encuentra las clases necesarias para gestionar problemas
- * de clustering.
- */
 package es.ujaen.metaheuristicas.pr2a.clustering;
 
-import es.ujaen.metaheuristicas.pr2a.utils.Pair;
-import es.ujaen.metaheuristicas.pr2a.utils.ReadFile;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 /**
@@ -19,380 +9,339 @@ import java.util.Random;
 public class Functions {
 
     /**
-     * Método para calcular el coste de una solución.
+     * Calcula la distancia entre un patrón y un cluster.
      *
-     * @param clusters List de {@link Cluster} con los patrones asignados.
-     * @param centroids List de {@link Pattern} representando los centroides de
-     * los clusters.
-     * @return Float con el coste de la solución.
+     * @param pattern
+     * @param chromosome
+     * @param cluster
+     * @return null
+     * @deprecated
      */
-    public static Float objectiveFunction(List<Cluster> clusters, List<Pattern> centroids) {
+    public static float distance(Pattern pattern, Chromosome chromosome, int cluster) {
+        float distance = 0;
+        for (int i = 0; i < pattern.dimensions.length; i++) {
+            float pow = -pattern.dimensions[i] + chromosome.clusters[cluster].centroid[i];
+            distance += (pow * pow);
+        }
+        return distance;
+    }
 
-        /* Coste de la solución */
-        float cost = 0;
-        /* Recorre los clusters */
-        for (int i = 0; i < clusters.size(); i++) {
-            /* Recorre los patrones de cada cluster */
-            Cluster cluster = clusters.get(i);
-            for (int j = 0; j < cluster.size(); j++) {
-                cost += distance(centroids.get(i), cluster.get(j));
+    /**
+     *
+     * @param patterns
+     * @param chromosome
+     * @deprecated
+     */
+    public static void objectiveFunction(Pattern[] patterns, Chromosome chromosome) {
+        chromosome.objective = 0;
+        for (Pair pair : chromosome.pairs) {
+            float aux = distance(patterns[pair.pattern], chromosome, pair.cluster);
+            chromosome.objective += aux;
+        }
+    }
+
+    /**
+     *
+     * @param chromosomes
+     * @param patterns
+     * @param rand
+     * @deprecated
+     */
+    public static void mutation(Chromosome[] chromosomes, Pattern[] patterns, Random rand) {
+        int randC = rand.nextInt(chromosomes.length);
+
+        int gen1 = rand.nextInt(chromosomes[randC].pairs.length);
+        int gen2 = rand.nextInt(chromosomes[randC].pairs.length);
+
+        while (gen1 == gen2 || chromosomes[randC].pairs[gen1].cluster == chromosomes[randC].pairs[gen2].cluster) {
+            gen1 = rand.nextInt(chromosomes[randC].pairs.length);
+            gen2 = rand.nextInt(chromosomes[randC].pairs.length);
+        }
+
+        Pair aux1 = chromosomes[randC].pairs[gen1];
+        Pair aux2 = chromosomes[randC].pairs[gen2];
+        if (chromosomes[randC].clusters[aux1.cluster].size > 1 && chromosomes[randC].clusters[aux2.cluster].size > 1) {
+            //Se intercambian los cluster.
+            int aux = aux1.cluster;
+            chromosomes[randC].pairs[gen1].cluster = chromosomes[randC].pairs[gen2].cluster;
+            chromosomes[randC].pairs[gen2].cluster = aux;
+
+            //Se calculan los centroides de los cluster al añadir los patrones.           
+            float clus1[] = Functions.calculateCentroids(patterns, chromosomes, randC, aux1.cluster);
+            float clus2[] = Functions.calculateCentroids(patterns, chromosomes, randC, aux2.cluster);
+            chromosomes[randC].clusters[aux1.cluster].centroid = clus1;
+            chromosomes[randC].clusters[aux2.cluster].centroid = clus2;
+        }
+    }
+
+    /**
+     *
+     * @param patterns
+     * @param numClus
+     * @param population
+     * @param rand
+     * @return null
+     * @deprecated
+     */
+    public static Chromosome[] setInitial(Pattern[] patterns, int numClus, int population, Random rand) {
+        Chromosome[] chromosomes = new Chromosome[population];
+
+        for (int i = 0; i < chromosomes.length; i++) {
+            chromosomes[i] = new Chromosome(patterns.length, numClus);
+        }
+
+        for (Chromosome chromosome : chromosomes) {
+            int pospar = 0;
+            boolean assigned[] = new boolean[patterns.length];
+            //Asigna los n patrones desde el aleatorio como centros de los cluster.
+            for (int c = 0; c < numClus; c++) {
+                int p = rand.nextInt(patterns.length);
+                while (assigned[p]) {
+                    p = rand.nextInt(patterns.length);
+                }
+                float centroid[] = new float[patterns[p].size];
+                System.arraycopy(patterns[p % patterns.length].dimensions, 0, centroid, 0, patterns[p].dimensions.length);
+                chromosome.clusters[c] = new Cluster();
+                chromosome.clusters[c].centroid = centroid;
+                chromosome.clusters[c].size++;
+                Pair aux = new Pair();
+                aux.pattern = p;
+                aux.cluster = c;
+                chromosome.pairs[pospar] = aux;
+                assigned[p] = true;
+                pospar++;
+            }
+            //Busca el más cercano.
+            for (int i = 0; i < patterns.length; i++) {
+                int pattern = i;
+                if (!assigned[i]) {
+                    float dist = Float.MAX_VALUE;
+                    int cluster = -1;
+                    for (int c = 0; c < numClus; c++) {
+                        float distance = 0;
+                        distance = distance(patterns[pattern], chromosome, c);
+                        if (distance < dist && cluster != -1) {
+                            cluster = c;
+                            dist = distance;
+                        }
+                        if (cluster == -1) {
+                            cluster = c;
+                            dist = distance;
+                        }
+                    }
+                    //Asignación del patrón al cluster mas cercano.
+                    Pair aux = new Pair();
+                    aux.pattern = pattern;
+                    aux.cluster = cluster;
+                    chromosome.pairs[pospar] = aux;
+                    pospar += 1 % patterns.length;
+                    assigned[i] = true;
+                    //Recalculo del centroide.
+                    for (int d = 0; d < patterns[0].size; d++) {
+                        //Sin factorización.
+                        float centroid = 0;
+                        int size = 0;
+                        for (int pat = 0; pat < pospar; pat++) {
+                            if (chromosome.pairs[pat].cluster == cluster) {
+                                centroid += patterns[chromosome.pairs[pat].pattern].dimensions[d];
+                                size++;
+                            }
+                        }
+                        chromosome.clusters[cluster].centroid[d] = centroid / size;
+                        chromosome.clusters[cluster].size = size;
+                    }
+                }
+            }
+            objectiveFunction(patterns, chromosome);
+        }
+        return chromosomes;
+    }
+
+    /**
+     *
+     * @param chromosomes
+     * @param rand
+     * @return null
+     * @deprecated
+     */
+    public static int[] selection(Chromosome chromosomes[], int size, Random rand) {
+        int fathers[] = new int[size];
+        for (int i = 0; i < size; i++) {
+            int f1 = rand.nextInt(chromosomes.length);
+            int f2 = rand.nextInt(chromosomes.length);
+            if (f1 == f2) {
+                while (f1 == f2) {
+                    f2 = rand.nextInt(chromosomes.length);
+                }
+            }
+            if (chromosomes[f1].objective < chromosomes[f2].objective) {
+                fathers[i] = f1;
+            } else {
+                fathers[i] = f2;
+            }
+        }
+        return fathers;
+    }
+
+    /**
+     *
+     * @param rand
+     * @param chromosomes
+     * @param f1
+     * @param f2
+     * @param patterns
+     * @return null
+     * @deprecated
+     */
+    public static Chromosome[] crossing(Pattern[] patterns, Chromosome[] chromosomes, Random rand, int f1, int f2) {
+        int lowerCut = rand.nextInt(chromosomes[f1].pairs.length);
+        int upperCut = rand.nextInt(chromosomes[f1].pairs.length);
+        Chromosome children[] = new Chromosome[2];
+
+        for (int h = 0; h < 2; h++) {
+            children[h] = new Chromosome(chromosomes[f1].patternsSize, chromosomes[f1].clustersSize);
+        }
+
+        if (lowerCut > upperCut) {
+            int aux = lowerCut;
+            lowerCut = upperCut;
+            upperCut = aux;
+        }
+        
+        boolean son[] = new boolean[chromosomes[f1].patternsSize];
+        boolean daughter[] = new boolean[chromosomes[f2].patternsSize];
+        
+        // Añade el corte al son        
+        for (int i = lowerCut; i <= upperCut; i++) {
+            son[chromosomes[f1].pairs[i].pattern] = true;
+            children[0].pairs[i] = new Pair(chromosomes[f1].pairs[i]);
+
+        }
+        // Añade el resto del f2
+        int pospar = 0;
+        for (int i = 0; i < children[0].pairs.length; i++) {
+            Pair aux = chromosomes[f2].pairs[i];
+            if (!son[aux.pattern]) {
+                if (pospar == lowerCut) {
+                    pospar = upperCut + 1;
+                }
+
+                children[0].pairs[pospar] = new Pair(aux);
+                pospar++;
+            }
+        }
+        
+        // Añade el corte al daughter        
+        for (int i = lowerCut; i <= upperCut; i++) {
+            daughter[chromosomes[f2].pairs[i].pattern] = true;
+            children[1].pairs[i] = new Pair(chromosomes[f2].pairs[i]);
+
+        }
+        // Añade el resto del f1
+        pospar = 0;
+        for (int i = 0; i < children[1].pairs.length; i++) {
+            Pair aux = chromosomes[f1].pairs[i];
+            if (!daughter[aux.pattern]) {
+                if (pospar == lowerCut) {
+                    pospar = upperCut + 1;
+                }
+
+                children[1].pairs[pospar] = new Pair(aux);
+                pospar++;
             }
         }
 
-        return cost;
-    }
+        //Crea los cluster.        
+        for (int i = 0; i < 2; i++) {
+            for (int c = 0; c < children[i].clusters.length; c++) {
+                children[i].clusters[c] = new Cluster();
+                children[i].clusters[c].centroid = new float[patterns[0].size];
+                for (int d = 0; d < patterns[0].dimensions.length; d++) {
+                    float centroid = 0;
+                    int size = 0;
+                    for (int pair = 0; pair < patterns.length; pair++) {
 
-    /**
-     * Método para calcular la mejora moviendo un patrón.
-     *
-     * @param clusters List de {@link Cluster} con todos los patrones asignados.
-     * @param centroids List de {@link Pattern} que representan los centroides
-     * de los clusters.
-     * @param assigned Posición del cluster en el listado de cluster al que se
-     * va a asignar el patrón indicado.
-     * @param i Posición del cluster en el listado de cluster del que se va a
-     * eliminar el patrón indicado.
-     * @param j Posición del patrón que se va a mover.
-     * @return Float con la mejora que produce el cambio del patrón.
-     */
-    public static Float factorize(List<Cluster> clusters, List<Pattern> centroids,
-            int assigned, int i, int j) {
-
-        /* Patrón que se va a mover */
-        Pattern pattern = clusters.get(i).get(j);
-        /* Centroide del cluster de origen */
-        Pattern centroid = centroids.get(i);
-        /* Centroide del cluster al que se va a asignar el patrón */
-        Pattern centroidAssigned = centroids.get(assigned);
-        /* Cálculo de la distancia a los dos centroides */
-        Float add = 0f;
-        Float addAssigned = 0f;
-        for (int k = 0; k < pattern.size(); k++) {
-            Float sub = pattern.get(k) - centroid.get(k);
-            add += sub * sub;
-            sub = pattern.get(k) - centroidAssigned.get(k);
-            addAssigned += sub * sub;
+                        if (children[i].pairs[pair].cluster == c) {
+                            centroid += patterns[children[i].pairs[pair].pattern].dimensions[d];
+                            size++;
+                        }
+                    }
+                    children[i].clusters[c].centroid[d] = centroid / (float) size;
+                    children[i].clusters[c].size = size;
+                }
+            }
         }
-        /* Mejora que se produce al mover el patrón de cluster */
-        Float objective = -1 * ((clusters.get(i).size() * add) / clusters.get(i).size())
-                + ((clusters.get(assigned).size() * addAssigned) / clusters.get(assigned).size());
-
-        return objective;
+        return children;
     }
 
     /**
-     * Método para calcular la distancia entre dos patrones.
+     * Recalcula el centroide de un cluster concreto.
      *
-     * @param first Un patrón con el que comparar (corresponde al centroide).
-     * @param second Un patrón con el que comparar (corresponde al patrón).
+     * @param patterns
+     * @param chromosomes
+     * @param pob
+     * @param cluster
+     * @return null
+     * @deprecated
      */
-    private static Float distance(Pattern first, Pattern second) {
-        /* Distancia entre el patrón y el centroide */
-        float add = 0;
-        for (int k = 0; k < second.size(); k++) {
-            /* Resta de la distancia de cada componente entre el patrón y el centroide */
-            float sub = second.get(k) - first.get(k);
-            add += sub * sub;
-        }
-        return add;
-    }
+    public static float[] calculateCentroids(Pattern[] patterns, Chromosome[] chromosomes, int pob, int cluster) {
+        float centroids[] = new float[patterns[0].dimensions.length];
 
-    /**
-     * Método que calcula los centroides de los clusters.
-     *
-     * @param clusters List de {@link Cluster} con todos los patrones asignados.
-     * @return List de {@link Pattern} que representan los centroides de los
-     * clusters.
-     */
-    public static List<Pattern> calculateCentroids(List<Cluster> clusters) {
-        /* ArrayList para crear los centroides de todos los clusters */
-        List<Pattern> centroids = new ArrayList<>();
-        /* Recorre los clusters */
-        for (Cluster c : clusters) {
-            centroids.add(calculateCentroid(c.get()));
+        for (int d = 0; d < centroids.length; d++) {
+            int size = 0;
+            float centroid = 0;
+            for (int i = 0; i < patterns.length; i++) {
+                if (chromosomes[pob].pairs[i].cluster == cluster) {
+                    centroid += patterns[chromosomes[pob].pairs[i].pattern].dimensions[d];
+                    size++;
+                }
+            }
+            centroids[d] = centroid / (float) size;
         }
         return centroids;
     }
-
+    
     /**
-     * Método que calcula el centroide de un cluster.
-     *
-     * @param patterns List de {@link Pattern} para calcular un centroide.
-     * @return {@link Pattern} que representan el centroide de un cluster.
+     * 
+     * @param chromosomes
+     * @return null
+     * @deprecated 
      */
-    public static Pattern calculateCentroid(List<Pattern> patterns) {
-
-        Pattern centroid = new Pattern();
-        /* Recorre cada patrón sumando cada dimension y realizando la media */
-        for (int i = 0; patterns.size() > 0 && i < patterns.get(0).size(); i++) {
-            float avg = 0;
-            for (Pattern p : patterns) {
-                avg += p.get(i);
-            }
-            centroid.add(avg / patterns.size());
-        }
-
-        return centroid;
-    }
-
-    /**
-     * Método para obtener una solución inicial.
-     *
-     * @param patterns Todos los patrones para asignarlos a los clusters.
-     * @param rand Números aleatorios a partir de una semilla.
-     * @param numberClusters Número de clusters a generar.
-     * @return List de {@link Cluster} con todos los patrones asignados.
-     */
-    public static List<Cluster> setInitial(List<Pattern> patterns, Random rand, Integer numberClusters) {
-        /* Crea una copia de la lista de patrones */
-        List<Pattern> restPattern = new ArrayList(patterns);
-        /* Inicializa los clusters y los centroides */
-        List<Cluster> clusters = new ArrayList<>();
-        List<Pattern> centroids = new ArrayList<>();
-
-        /* Calcula el centroide de cada cluster */
-        for (int i = 0; i < numberClusters; i++) {
-            int positionCandidate = rand.nextInt(restPattern.size());
-            /* Asigna el patrón a un cluster */
-            Pattern candidate = restPattern.remove(positionCandidate);
-            clusters.add(new Cluster());
-            clusters.get(i).add(candidate);
-            centroids.add(i, candidate);
-        }
-
-        /* Asigna el resto de patrones al cluster que menos distancia tenga */
-        for (int j = 0; j < restPattern.size(); j++) {
-            float distance = 0;
-            int assigned = 0;
-            for (int i = 0; i < centroids.size(); i++) {
-                float actualDistance = distance(centroids.get(i), restPattern.get(j));
-                if (actualDistance < distance || distance == 0) {
-                    distance = actualDistance;
-                    assigned = i;
-                }
-            }
-            clusters.get(assigned).add(restPattern.remove(j));
-            j--;
-        }
-
-        return clusters;
-    }
-
-    /**
-     * Método para crear un cromosoma a partir de una lista de clusters.
-     *
-     * @param clusters List de {@link Cluster} con todos los patrones asignados.
-     * @param patterns
-     * @param rand Números aleatorios a partir de una semilla.
-     * @return Chromoseme generado a partir de los clusters.
-     */
-    public static Chromosome setChromosome(List<Cluster> clusters, List<Pattern> patterns, Random rand) {
-        /* Copia auxiliar de los clusters */
-        List<Cluster> auxCluster = new ArrayList(clusters);
-        /* Inicializa el cromosoma */
-        Chromosome chromosome = new Chromosome();
-        /* Crea un gen por cada patrón */
-        while (auxCluster.size() > 0) {
-
-            /* Selecciona un patrón de forma aleatoria y lo asigna a un gen */
-            int positionCluster = rand.nextInt(auxCluster.size());
-            int positionPatternCluster = rand.nextInt(auxCluster.get(positionCluster).size());
-            Pattern pattern = auxCluster.get(positionCluster).remove(positionPatternCluster);
-//            int positionPattern = patterns.indexOf(pattern);
-            chromosome.add(pattern, positionCluster);
-
-            if (auxCluster.get(positionCluster).size() == 0) {
-                auxCluster.remove(positionCluster);
-            }
-
-        }
-        return chromosome;
-    }
-
-    /**
-     * Método para realizar el cruce de dos chromosomas y generar dos hijos.
-     *
-     * @param populationChromosomes Población con todos los cromosomas.
-     * @param father Posición del padre en el list de cromosomas.
-     * @param mother Posición de la madre en el list de cromosomas.
-     * @param rand Números aleatorios generados a partir de una semilla.
-     * @return List de cromosomas con los hijos generados.
-     */
-    public static List<Chromosome> crossing(List<Chromosome> populationChromosomes, Integer father, Integer mother, Random rand) {
-
-        /* Cromosomas padre y madre */
-        Chromosome fatherChromosome = new Chromosome(populationChromosomes.get(father));
-        Chromosome motherChromosome = new Chromosome(populationChromosomes.get(mother));
-
-        /* Definición de la posición de los cortes */
-        int upperCut = rand.nextInt(fatherChromosome.size());
-        int lowerCut = rand.nextInt(fatherChromosome.size());
-
-        /* Comprueba si el corto inferior es menor al corte superior */
-        if (upperCut == lowerCut) {
-            upperCut++;
-        } else if (upperCut < lowerCut) {
-            int aux = upperCut;
-            upperCut = lowerCut;
-            lowerCut = aux;
-        }
-
-        /* Elimina los elementos comunes en el corte */
-        List<Pair<Pattern, Integer>> motherSubList = populationChromosomes.get(mother).subList(lowerCut, upperCut);
-        fatherChromosome.removeAll(motherSubList);
-        List<Pair<Pattern, Integer>> fatherSubList = populationChromosomes.get(father).subList(lowerCut, upperCut);
-        motherChromosome.removeAll(fatherSubList);
-
-        Chromosome son = new Chromosome();
-        Chromosome daughter = new Chromosome();
-        /* Crea los nuevos hijos */
-        for (int i = lowerCut; i < upperCut; i++) {
-            son.add(populationChromosomes.get(father).get(i));
-            daughter.add(populationChromosomes.get(mother).get(i));
-        }
-        for (int i = 0; i < populationChromosomes.get(mother).size() - upperCut; i++) {
-            son.add(motherChromosome.get(i));
-            daughter.add(fatherChromosome.get(i));
-        }
-        for (int i = 0; i < lowerCut; i++) {
-            son.add(i, motherChromosome.get(i + populationChromosomes.get(mother).size() - upperCut));
-            daughter.add(i, fatherChromosome.get(i + populationChromosomes.get(mother).size() - upperCut));
-        }
-
-        /* Devuelve los hijos generados en el cruce */
-        List<Chromosome> children = new ArrayList();
-        children.add(son);
-        children.add(daughter);
-        return children;
-    }
-
-    /**
-     * Método para seleccionar un cromosoma de la población.
-     *
-     * @param populationDistances Coste de cada cromosoma para elegir el mejor
-     * de los aleatorios.
-     * @param rand Números aleatorios a partir de la semilla.
-     * @return Posición del gen en el cromosoma.
-     */
-    public static Integer selected(List<Float> populationDistances, Random rand) {
-        int father = rand.nextInt(populationDistances.size());
-        int aux = father;
-        do {
-            aux = rand.nextInt(populationDistances.size());
-        } while (father == aux);
-
-        if (populationDistances.get(aux) < populationDistances.get(father)) {
-            father = aux;
-        }
-
-        return father;
-    }
-
-    /**
-     * Método para realizar la mutación de un gen.
-     *
-     * @param children Cromosoma a mutar.
-     * @param rand Números aleatorios con la semilla.
-     * @param numberCluster Número de clusters que tiene la solución.
-     * @return Cromosoma mutado.
-     */
-    public static List<Chromosome> mutation(List<Chromosome> children, Random rand, Integer numberCluster) {
-
-        int chromosome = rand.nextInt(children.size());
-        int gen = rand.nextInt(children.get(chromosome).size());
-        int cluster = rand.nextInt(numberCluster);
-        /* Cambio del cluster */
-        children.get(chromosome).get(gen).second = cluster;
-
-        return children;
-    }
-
-    /**
-     * Método para calcular la posición del mejor coste.
-     *
-     * @param populationDistances List de costes de cada solución de la
-     * población.
-     * @return Posición del mejor coste.
-     */
-    public static Integer positionBest(List<Float> populationDistances) {
-        float distance = 0;
-        int best = 0;
-        for (int i = 0; i < populationDistances.size(); i++) {
-            if (populationDistances.get(i) < distance || distance == 0) {
-                distance = populationDistances.get(i);
-                best = i;
+    public static float bestSolution(Chromosome[] chromosomes){
+        
+        float best = Float.MAX_VALUE;
+        for (Chromosome chromosome : chromosomes) {
+            if (chromosome.objective < best) {
+                best = chromosome.objective;
             }
         }
         return best;
     }
-
+    
     /**
-     * Método para calcular la posición del peor coste.
-     *
-     * @param populationDistances List de costes de cada solución de la
-     * población.
-     * @return Posición del peor coste.
+     * 
+     * @param chromosomes
+     * @return null
+     * @deprecated 
      */
-    public static Integer positionWorst(List<Float> populationDistances) {
-        float distance = 0;
-        int worst = 0;
-        for (int i = 0; i < populationDistances.size(); i++) {
-            if (populationDistances.get(i) > distance || distance == 0) {
-                distance = populationDistances.get(i);
-                worst = i;
-            }
-        }
-        return worst;
-    }
-
-    /**
-     * Método para generar clusters a partir de cromosomas.
-     *
-     * @param chromosome Chromosoma del que generar el cluster.
-     * @param numberClusters Número de cluster a generar.
-     * @return List de clusters generados.
-     */
-    public static List<Cluster> getClusterChromosome(Chromosome chromosome, Integer numberClusters) {
-        List<Cluster> clusters = new ArrayList();
-        for (int i = 0; i < numberClusters; i++) {
-            clusters.add(new Cluster());
-        }
-        for (int i = 0; i < chromosome.size(); i++) {
-            clusters.get(chromosome.get(i).second).add(chromosome.get(i).first);
-        }
-        return clusters;
-    }
-
-    /**
-     * Método para calcular el umbral de patrones aceptados en la lista
-     * restringida.
-     *
-     * @param distances Distancia de cada patrón.
-     * @return Double que representa el umbral para aceptar patrones en la lista
-     * restringida.
-     */
-    public static float bestDistance(List<Float> distances) {
-        float best = 0;
-        for (Float distance : distances) {
-            if (distance > best || best == 0) {
-                best = distance;
-            }
-        }
-        return best;
-    }
-
-    /**
-     * Método para obtener la posición del la mejor solución.
-     *
-     * @param distances List de costes de cada solución.
-     * @return Posición del menor coste.
-     */
-    public static Integer positionBestDistance(List<Float> distances) {
-        float best = 0;
+    public static int bestPosition(Chromosome[] chromosomes){
         int position = 0;
-        for (int i = 0; i < distances.size(); i++) {
-            if (distances.get(i) < best || best == 0) {
-                best = distances.get(i);
+        float best = Float.MAX_VALUE;
+        for (int i = 0; i<chromosomes.length; i++) {
+            if (chromosomes[i].objective < best) {
+                best = chromosomes[i].objective;
+                position = i;
+            }
+        }
+        return position;
+    }
+    
+    public static int worstPosition(Chromosome[] chromosomes){
+        int position = 0;
+        float worst = Float.MAX_VALUE;
+        for (int i = 0; i<chromosomes.length; i++) {
+            if (chromosomes[i].objective > worst) {
+                worst = chromosomes[i].objective;
                 position = i;
             }
         }
@@ -403,34 +352,27 @@ public class Functions {
      * Método para cargar un dataset en un List de {@link Pattern}.
      *
      * @param fileName Ruta del archivo.
+     * @param size
      * @return List de {@link Pattern} con todos los patrones del dataset
      * indicado en el fileName.
      */
-    public static List<Pattern> readData(String fileName) {
+    public static Pattern[] readData(String fileName, int size) {
         /* ArrayList con todos los patrones del dataset */
-        List<Pattern> patterns = new ArrayList<>();
-
-        try {
-            /* Url relativa al paquete */
-            fileName = URLDecoder.decode(Functions.class
-                    .getResource("../instances/" + fileName).getFile(), "UTF-8");
-            /* Archivo con los datos */
-            ReadFile file = new ReadFile(fileName);
-            /* Líneas del archivo que corresponden con cada patrón */
-            String line;
-            while ((line = file.readLine()) != null) {
-                /* División de la línea por espacios que corresponde con cada dato del patrón */
-                String[] datas = line.split(" ");
-                /* Parse de string a Pattern */
-                Pattern p = new Pattern();
-                for (String data : datas) {
-                    p.add(Float.parseFloat(data));
-                }
-                /* Añadido el patrón al listado de patrones */
-                patterns.add(p);
+        Pattern[] patterns = new Pattern[size];
+        ReadFile file = new ReadFile("src/es/ujaen/metaheuristicas/pr2a/instances/" + fileName);
+        String line;
+        int pos = 0;
+        while ((line = file.readLine()) != null) {
+            /* División de la línea por espacios que corresponde con cada dato del patrón */
+            String[] datas = line.split(" ");
+            /* Parse de string a Pattern */
+            Pattern p = new Pattern(datas.length);
+            for (int j = 0; j < datas.length; j++) {
+                p.dimensions[j] = Float.parseFloat(datas[j]);
             }
-        } catch (UnsupportedEncodingException ex) {
-            System.out.println("An error has ocurred with encoding URL. Error message: " + ex.toString());
+            /* Añadido el patrón al listado de patrones */
+            patterns[pos] = p;
+            pos++;
         }
 
         return patterns;
@@ -441,34 +383,31 @@ public class Functions {
      *
      * @param fileName Nombre del dataset utilizado.
      * @param patterns List de patrones utilizados.
-     * @param clusters list de clusters utilizados con los patrones asignados a
-     * cada uno.
-     * @param centroids List de patrones que representa los centroides de cada
-     * cluster.
+     * @param chromosomes
      * @param seed Semilla utilizada.
      * @param initialCost Coste de la solución inicial.
      * @param finalCost Coste de la solución tras aplicar el algoritmo.
+     * @param generation
      * @param time Tiempo de ejecución del algoritmo.
      */
-    public static void print(String fileName, List<Pattern> patterns,
-            List<Cluster> clusters, List<Pattern> centroids, Integer seed,
-            Float initialCost, Float finalCost, Long time) {
+    public static void print(String fileName, Pattern[] patterns, Chromosome[] chromosomes,
+            Integer seed, Float initialCost, Float finalCost, Integer generation, Long time) {
         System.out.println("======================================================================\n"
                 + "    " + fileName + "\n"
                 + "======================================================================");
         System.out.println("Lectura del dataset " + fileName);
-        System.out.println("Número de patrones: " + patterns.size());
-        System.out.println("Dimensión de los patrones: " + patterns.get(0).size());
-        System.out.println("Número de clusters: " + clusters.size());
+        System.out.println("Número de patrones: " + patterns.length);
+        System.out.println("Dimensión de los patrones: " + patterns[0].size);
+//        System.out.println("Número de clusters: " + clusters.size());
         System.out.println("Semilla: " + seed);
         System.out.println("Tiempo de ejecución: " + time + " milisegundos");
 //        System.out.println("Número de centroides: " + centroids.size());
 //        System.out.println("    Centroide inicial 1: " + centroids.get(0).toString());
 //        System.out.println("    Centroide inicial 2: " + centroids.get(1).toString());
         System.out.println("Coste inicial: " + initialCost);
+        System.out.println("Número de generaciones: " + generation);
         System.out.println("===================== Coste final: " + finalCost + " ======================");
         System.out.println("\n");
 
     }
-
 }
