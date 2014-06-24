@@ -383,7 +383,7 @@ public class Functions {
      *
      * @param fileName Nombre del dataset utilizado.
      * @param patterns List de patrones utilizados.
-     * @param chromosomes
+     * @param chromosomes 
      * @param seed Semilla utilizada.
      * @param initialCost Coste de la solución inicial.
      * @param finalCost Coste de la solución tras aplicar el algoritmo.

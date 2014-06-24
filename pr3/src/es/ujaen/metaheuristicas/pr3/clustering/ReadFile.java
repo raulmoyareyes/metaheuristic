@@ -2,7 +2,7 @@
  * En este paquete se encuentra las clases utiles para realizar distintas tareas
  * como lectura de ficheros, gestión de datos, etc.
  */
-package es.ujaen.metaheuristicas.pr3.utils;
+package es.ujaen.metaheuristicas.pr2a.clustering;
 
 import java.io.BufferedReader;
 import java.io.File;

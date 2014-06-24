@@ -1,6 +1,7 @@
-package es.ujaen.metaheuristicas.pr3;
+package es.ujaen.metaheuristicas.pr2a;
 
-import es.ujaen.metaheuristicas.pr3.algorithms.AM;
+import es.ujaen.metaheuristicas.pr2a.algorithms.AGE;
+import es.ujaen.metaheuristicas.pr2a.algorithms.AGG;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -11,7 +12,7 @@ import java.util.Scanner;
  *
  * @author Raúl Moya Reyes <www.raulmoya.es>
  */
-public class Pr3 {
+public class Pr2a {
 
     public static void main(String[] args) {
 
@@ -25,34 +26,34 @@ public class Pr3 {
         System.out.println("Selecciona el dataset: \n 1 - Breast \n 2 - R15 \n 3 - Yeast");
         int dataset = in.nextInt();
         System.out.println("");
-        System.out.println("Selecciona el algoritmo: \n 1 - AM-(10,1.0) \n 2 - AM-(10,0.1)");
+        System.out.println("Selecciona el algoritmo: \n 1 - AGE \n 2 - AGG");
         int algorithm = in.nextInt();
         System.out.println("\n");
 
         switch (dataset) {
             case 1:
-                run("breast.txt", seeds, 2, algorithm);
+                run("breast.txt", 699, seeds, 2, algorithm);
                 break;
             case 2:
-                run("R15.txt", seeds, 15, algorithm);
+                run("R15.txt", 600, seeds, 15, algorithm);
                 break;
             case 3:
-                run("yeast.txt", seeds, 10, algorithm);
+                run("yeast.txt", 1484, seeds, 10, algorithm);
                 break;
         }
 
     }
 
-    private static Float run(String fileName, List<Integer> seeds, Integer numberClusters, Integer algorithm) {
+    private static Float run(String fileName, Integer size, List<Integer> seeds, Integer numberClusters, Integer algorithm) {
 
         float finalCost = 0;
         for (Integer seed : seeds) {
             switch (algorithm) {
                 case 1:
-                    finalCost = AM.init(fileName, seed, numberClusters, 10, 1f);
+                    finalCost = AGE.init(fileName, size, seed, numberClusters, 50);
                     break;
                 case 2:
-                    finalCost = AM.init(fileName, seed, numberClusters, 10, 0.1f);
+                    finalCost = AGG.init(fileName, size, seed, numberClusters, 50);
                     break;
             }
         }
