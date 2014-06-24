@@ -1,4 +1,4 @@
-package es.ujaen.metaheuristicas.pr2a.clustering;
+package es.ujaen.metaheuristicas.pr3.clustering;
 
 /**
  *

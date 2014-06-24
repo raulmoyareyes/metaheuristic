@@ -1,4 +1,4 @@
-package es.ujaen.metaheuristicas.pr2a.clustering;
+package es.ujaen.metaheuristicas.pr3.clustering;
 
 import java.util.Random;
 
@@ -182,6 +182,18 @@ public class Functions {
         }
         return fathers;
     }
+    
+    public static float factorize(Pattern pattern, float[] centroid, float[] newCentroid){
+        float distance = 0;
+        float newDistance = 0;
+        for (int i = 0; i < pattern.dimensions.length; i++) {
+            float pow = pattern.dimensions[i] - centroid[i];
+            distance += (pow * pow);
+            pow = pattern.dimensions[i] - newCentroid[i];
+            newDistance += (pow * pow);
+        }
+        return ((-1*centroid.length/centroid.length-1)*distance)+((newCentroid.length/newCentroid.length)*newDistance);
+    }
 
     /**
      *
@@ -359,7 +371,7 @@ public class Functions {
     public static Pattern[] readData(String fileName, int size) {
         /* ArrayList con todos los patrones del dataset */
         Pattern[] patterns = new Pattern[size];
-        ReadFile file = new ReadFile("src/es/ujaen/metaheuristicas/pr2a/instances/" + fileName);
+        ReadFile file = new ReadFile("src/es/ujaen/metaheuristicas/pr3/instances/" + fileName);
         String line;
         int pos = 0;
         while ((line = file.readLine()) != null) {
@@ -383,7 +395,7 @@ public class Functions {
      *
      * @param fileName Nombre del dataset utilizado.
      * @param patterns List de patrones utilizados.
-     * @param chromosomes
+     * @param chromosomes 
      * @param seed Semilla utilizada.
      * @param initialCost Coste de la solución inicial.
      * @param finalCost Coste de la solución tras aplicar el algoritmo.

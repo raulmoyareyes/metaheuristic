@@ -1,5 +1,5 @@
 
-package es.ujaen.metaheuristicas.pr2a.clustering;
+package es.ujaen.metaheuristicas.pr3.clustering;
 
 /**
  *
@@ -7,8 +7,8 @@ package es.ujaen.metaheuristicas.pr2a.clustering;
  */
 public class Pattern {
 
-    float dimensions[];
-    int size;
+    public float dimensions[];
+    public int size;
 
     Pattern(int size) {
         this.size = size;

@@ -1,7 +1,6 @@
-package es.ujaen.metaheuristicas.pr2a;
+package es.ujaen.metaheuristicas.pr3;
 
-import es.ujaen.metaheuristicas.pr2a.algorithms.AGE;
-import es.ujaen.metaheuristicas.pr2a.algorithms.AGG;
+import es.ujaen.metaheuristicas.pr3.algorithms.AGG;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -12,7 +11,7 @@ import java.util.Scanner;
  *
  * @author Raúl Moya Reyes <www.raulmoya.es>
  */
-public class Pr2a {
+public class Pr3 {
 
     public static void main(String[] args) {
 
@@ -26,7 +25,7 @@ public class Pr2a {
         System.out.println("Selecciona el dataset: \n 1 - Breast \n 2 - R15 \n 3 - Yeast");
         int dataset = in.nextInt();
         System.out.println("");
-        System.out.println("Selecciona el algoritmo: \n 1 - AGE \n 2 - AGG");
+        System.out.println("Selecciona el algoritmo: \n 1 - MA (10,1.0) \n 2 - MA (10,0.1)");
         int algorithm = in.nextInt();
         System.out.println("\n");
 
@@ -50,10 +49,10 @@ public class Pr2a {
         for (Integer seed : seeds) {
             switch (algorithm) {
                 case 1:
-                    finalCost = AGE.init(fileName, size, seed, numberClusters, 50);
+                    finalCost = AGG.init(fileName, size, seed, numberClusters, 10, 1f);
                     break;
                 case 2:
-                    finalCost = AGG.init(fileName, size, seed, numberClusters, 50);
+                    finalCost = AGG.init(fileName, size, seed, numberClusters, 10, 0.1f);
                     break;
             }
         }

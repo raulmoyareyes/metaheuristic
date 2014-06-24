@@ -1,11 +1,12 @@
 /**
  * En este paquete se encuentra los algoritmos para realizar el clustering.
  */
-package es.ujaen.metaheuristicas.pr2a.algorithms;
+package es.ujaen.metaheuristicas.pr3.algorithms;
 
-import es.ujaen.metaheuristicas.pr2a.clustering.Chromosome;
-import es.ujaen.metaheuristicas.pr2a.clustering.Functions;
-import es.ujaen.metaheuristicas.pr2a.clustering.Pattern;
+import es.ujaen.metaheuristicas.pr3.clustering.Chromosome;
+import es.ujaen.metaheuristicas.pr3.clustering.Functions;
+import es.ujaen.metaheuristicas.pr3.clustering.Pair;
+import es.ujaen.metaheuristicas.pr3.clustering.Pattern;
 import java.util.Random;
 
 /**
@@ -23,9 +24,10 @@ public class AGG {
      * @param seed Semilla a utilizar para la generación de números aleatorios.
      * @param numberClusters Número de clusters a generar.
      * @param population Tamaño de la población.
+     * @param frequency
      * @return Float con el coste de la solución.
      */
-    public static Float init(String fileName, Integer size, Integer seed, Integer numberClusters, Integer population) {
+    public static Float init(String fileName, Integer size, Integer seed, Integer numberClusters, Integer population, float frequency) {
         float mutationProbability = (float) 0.01;
         float crossingProbability = (float) 0.7;
         int childrenSize = 2;
@@ -70,8 +72,8 @@ public class AGG {
             for (int i = 0; i < mutationProbability * patterns.length * childrenSize; i++) {
                 Functions.mutation(chromosomes, patterns, rand);
             }
-            
-            if(fathers[bestPosition]==-1){
+
+            if (fathers[bestPosition] == -1) {
                 fathers[bestPosition] = bestPosition;
                 chromosomes[bestPosition] = bestChromosome;
             }
@@ -79,6 +81,13 @@ public class AGG {
             for (int i = 0; i < chromosomes.length; i++) {
                 if (fathers[i] == -1) {
                     Functions.objectiveFunction(patterns, chromosomes[i]);
+                    count++;
+                }
+            }
+            if (count % 10 == 0 && count > 0) {
+                for (int i = 0; i < chromosomes.length * frequency; i++) {
+                    int position = rand.nextInt(chromosomes.length);
+                    localSearch(chromosomes[position], patterns);
                     count++;
                 }
             }
@@ -90,5 +99,34 @@ public class AGG {
         time = System.currentTimeMillis() - time;
         Functions.print(fileName, patterns, chromosomes, seed, initialSolution, best, generation, time);
         return best;
+    }
+
+    private static void localSearch(Chromosome chromosome, Pattern[] patterns) {
+
+        for (int i = 0; i < chromosome.clusters.length; i++) {
+            for (Pair pair : chromosome.pairs) {
+                int cluster = pair.cluster;
+                int pattern = pair.pattern;
+                if (i != cluster) {
+                    // factorizar
+                    float objective = Functions.factorize(patterns[pattern], chromosome.clusters[cluster].centroid, chromosome.clusters[i].centroid);
+                    if (objective < 0) {
+                        //cambiar patron y calcular centroides
+                        int m1 = chromosome.clusters[cluster].size;
+                        int m2 = chromosome.clusters[i].size;
+
+                        for (int k = 0; k < patterns[pattern].dimensions.length; k++) {
+
+                            float centroid = chromosome.clusters[cluster].centroid[k];
+                            chromosome.clusters[cluster].centroid[k] = ((m1 * centroid - patterns[pattern].dimensions[k]) / (m1 - 1));
+
+                            centroid = chromosome.clusters[i].centroid[k];
+                            chromosome.clusters[i].centroid[k] = ((m2 * centroid + patterns[pattern].dimensions[k]) / (m2 + 1));
+                        }
+                        chromosome.pairs[cluster].cluster = i;
+                    }
+                }
+            }
+        }
     }
 }
