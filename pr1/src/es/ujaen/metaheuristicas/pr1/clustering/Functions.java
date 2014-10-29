@@ -354,11 +354,11 @@ public class Functions {
     public static List<Pattern> readData(String fileName) {
         /* ArrayList con todos los patrones del dataset */
         List<Pattern> patterns = new ArrayList<>();
-        try {
+        //try {
             /* Url relativa al paquete */
-            fileName = URLDecoder.decode(Functions.class.getResource("../instances/" + fileName).getFile(), "UTF-8");
+            //fileName = URLDecoder.decode(Functions.class.getResource("../instances/" + fileName).getFile(), "UTF-8");
             /* Archivo con los datos */
-            ReadFile file = new ReadFile(fileName);
+            ReadFile file = new ReadFile("src/es/ujaen/metaheuristicas/pr1/instances/" + fileName);
             /* Líneas del archivo que corresponden con cada patrón */
             String line;
             while ((line = file.readLine()) != null) {
@@ -372,9 +372,9 @@ public class Functions {
                 /* Añadido el patrón al listado de patrones */
                 patterns.add(p);
             }
-        } catch (UnsupportedEncodingException ex) {
-            System.out.println("An error has ocurred with encoding URL. Error message: " + ex.toString());
-        }
+//        } catch (UnsupportedEncodingException ex) {
+//            System.out.println("An error has ocurred with encoding URL. Error message: " + ex.toString());
+//        }
 
         return patterns;
     }
