@@ -1,7 +1,7 @@
 Metaheurísticas
 ===============
 
-El proyecto está compuesto por varios algoritmos utilizando los mimos casos de estudio. Se organiza en:
+El proyecto está compuesto por varios algoritmos utilizando los mismos casos de estudio. Se organiza en:
 
 - Metaheurísticas basadas en trayectorias (pr1).
 - Metaheurísticas basadas en poblaciones: Algoritmos Genéticos (pr2a).
@@ -9,4 +9,4 @@ El proyecto está compuesto por varios algoritmos utilizando los mimos casos de 
  - Variante generacional elitista.
 - Búsquedas Híbridas: Algoritmos meméticos (pr3).
 
-Recuerda que solo implementaciones para realizar estudios sobre Metaheurísticas con diferentes modificaciones. No todas las modificaciones son las más optimas.
+Recuerda que son implementaciones para realizar estudios sobre Metaheurísticas con diferentes modificaciones. No todas las modificaciones son las más optimas.
